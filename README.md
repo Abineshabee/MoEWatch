@@ -188,7 +188,7 @@ moewatch/
 
 - [Getting started](https://github.com/Abineshabee/moewatch/docs/quickstart.md)
 - [Configuration reference](https://github.com/Abineshabee/moewatch/docs/config.md)
-- [API reference](https://github.com/Abineshabee/moewatch/docs/api_reference.md)
+- [API reference](https://github.com/Abineshabee/MoEWatch/docs/api_reference.md)
 - [Adding a custom architecture](https://github.com/Abineshabee/moewatch/docs/custom-architecture.md)
 - [Contributing](CONTRIBUTING.md)
 
