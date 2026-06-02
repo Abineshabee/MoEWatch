@@ -46,14 +46,14 @@ import json
 import logging
 import math
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
 from ..config import AlertLevel, WatchConfig
 from ..collector.stat_collector import LayerStats
 from ..analyzer.entropy import LayerEntropyReport, EntropyResult
-from ..analyzer.collapse import LayerCollapseReport, ExpertStatus, ExpertState
+from ..analyzer.collapse import LayerCollapseReport, ExpertState
 
 log = logging.getLogger(__name__)
 

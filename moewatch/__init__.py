@@ -25,6 +25,21 @@ import logging
 import os
 import sys
 
+from .config import (           # always fast — pure stdlib dataclass
+    WatchConfig,
+    OutputMode,
+    AlertLevel,
+)
+
+from ._audit import audit       # fast import; torch/sub-module loads on call
+
+from ._watcher import (
+    MoEWatch,
+    MoEWatchCallback,
+    Alert,
+)
+
+
 # ---------------------------------------------------------------------------
 # Version
 # ---------------------------------------------------------------------------
@@ -84,19 +99,6 @@ _NO_COLOR_ENV: bool = "NO_COLOR" in os.environ
 #
 # ---------------------------------------------------------------------------
 
-from .config import (           # always fast — pure stdlib dataclass
-    WatchConfig,
-    OutputMode,
-    AlertLevel,
-)
-
-from ._audit import audit       # fast import; torch/sub-module loads on call
-
-from ._watcher import (
-    MoEWatch,
-    MoEWatchCallback,
-    Alert,
-)
 
 # ---------------------------------------------------------------------------
 # __all__ — explicit public surface

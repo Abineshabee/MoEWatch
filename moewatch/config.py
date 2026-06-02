@@ -25,7 +25,7 @@ from __future__ import annotations
 import warnings
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Literal, Optional
+from typing import List
 
 
 # ---------------------------------------------------------------------------
@@ -369,7 +369,7 @@ class WatchConfig:
         }
 
     def __repr__(self) -> str:  # pragma: no cover
-        lines = [f"WatchConfig("]
+        lines = ["WatchConfig("]
         for key, value in self.to_dict().items():
             lines.append(f"    {key}={value!r},")
         lines.append(")")

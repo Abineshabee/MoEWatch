@@ -35,7 +35,8 @@ import logging
 import time
 import warnings
 from contextlib import contextmanager
-from typing import Any, Dict, Generator, Iterable, Iterator, Optional, Union
+from typing import Any, Dict, Generator, Iterable, Iterator, Optional
+from .report.audit_report import AuditReport
 
 import torch
 import torch.nn as nn

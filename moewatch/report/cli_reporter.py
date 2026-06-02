@@ -49,12 +49,11 @@ import math
 import os
 import sys
 import textwrap
-from typing import List, Optional
+from typing import Optional
 
 from ..config import AlertLevel, WatchConfig
 from .audit_report import (
     AuditReport,
-    DeadExpertEntry,
     OverallHealth,
     UtilizationSummary,
     _shorten_layer_name,
@@ -422,7 +421,6 @@ class CLIReporter:
 
         # Show all experts when n ≤ 32; otherwise abbreviate healthy ones.
         show_all = (n <= 32)
-        ABBREV_THRESHOLD = 32
 
         shown_count = 0
         abbreviated = False
@@ -484,11 +482,9 @@ class CLIReporter:
         # -- Determine colour and icon based on expert state ----------------
         if state == ExpertState.DEAD:
             bar_colour = _FG_BRED
-            icon       = _ICON_ERROR
             state_tag  = self._c("[DEAD]", _FG_BRED + _BOLD)
         elif state == ExpertState.COLD:
             bar_colour = _FG_BYELLOW
-            icon       = _ICON_COLD
             state_tag  = self._c("[COLD]", _FG_BYELLOW)
         else:
             # Colour by utilization quartile
@@ -500,7 +496,6 @@ class CLIReporter:
                 bar_colour = _FG_BYELLOW
             else:
                 bar_colour = _FG_BRED
-            icon      = _ICON_OK if util_frac >= 0.01 else _ICON_WARN
             state_tag = self._c("[OK]  ", _FG_BGREEN) if util_frac >= 0.01 else self._c("[LOW] ", _FG_BYELLOW)
 
         # -- Build the ASCII bar --------------------------------------------

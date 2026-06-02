@@ -55,7 +55,6 @@ import warnings
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
-import torch
 import torch.nn as nn
 
 from .config import AlertLevel, OutputMode, WatchConfig
@@ -226,11 +225,11 @@ class MoEWatch:
         self._start_time:     Optional[float] = None
 
         # Sub-module references resolved lazily to keep import fast
-        self._HookManager        = None
-        self._detect_routers     = None
-        self._StatCollector      = None
-        self._EntropyAnalyzer    = None
-        self._CollapseDetector   = None
+        self._HookManager:     Optional[Any] = None
+        self._detect_routers:  Optional[Any] = None
+        self._StatCollector:   Optional[Any] = None
+        self._EntropyAnalyzer: Optional[Any] = None
+        self._CollapseDetector:Optional[Any] = None
         self._entropy_analyzer:  Optional[Any] = None
         self._collapse_detector: Optional[Any] = None
 
@@ -282,7 +281,7 @@ class MoEWatch:
         if self.config.router_modules:
             router_names = list(self.config.router_modules)
         else:
-            router_names = self._detect_routers(self.model)
+            router_names = self._detect_routers(self.model)  # type: ignore[misc]
 
         if not router_names:
             raise RuntimeError(
@@ -291,20 +290,20 @@ class MoEWatch:
             )
 
         # -- Wire up collector and hooks ------------------------------------
-        self._collector = self._StatCollector(
+        self._collector = self._StatCollector(  # type: ignore[misc]
             layer_names=router_names,
             config=self.config,
         )
 
-        self._hook_manager = self._HookManager(
+        self._hook_manager = self._HookManager(  # type: ignore[misc]
             model=self.model,
             router_module_names=router_names,
             collector=self._collector,
             config=self.config,
         )
         self._hook_manager.attach()
-        self._entropy_analyzer  = self._EntropyAnalyzer(config=self.config)
-        self._collapse_detector = self._CollapseDetector(config=self.config)
+        self._entropy_analyzer  = self._EntropyAnalyzer(config=self.config)  # type: ignore[misc]
+        self._collapse_detector = self._CollapseDetector(config=self.config)  # type: ignore[misc]
         self._attached = True
 
         self._print_banner(router_names)
@@ -441,7 +440,7 @@ class MoEWatch:
             return []
 
         # -- Entropy analysis -----------------------------------------------
-        entropy_report = self._entropy_analyzer.analyze(layer_stats)
+        entropy_report = self._entropy_analyzer.analyze(layer_stats)   # type: ignore[union-attr]
 
         for layer_name, result in entropy_report.results.items():
             if result.alert_level == AlertLevel.ERROR:
@@ -472,7 +471,7 @@ class MoEWatch:
                 step_alerts.append(alert)
 
         # -- Collapse analysis ----------------------------------------------
-        collapse_results = self._collapse_detector.detect(layer_stats)
+        collapse_results = self._collapse_detector.detect(layer_stats)  # type: ignore[union-attr]
 
         for layer_name, report in collapse_results.items():
             for status in report.experts:
@@ -690,7 +689,7 @@ try:
     from transformers import TrainerCallback as _TrainerCallbackBase
     _HF_AVAILABLE = True
 except ImportError:
-    _TrainerCallbackBase = object
+    _TrainerCallbackBase = object  # type: ignore[misc, assignment]
     _HF_AVAILABLE = False
 
 class MoEWatchCallback(_TrainerCallbackBase):
