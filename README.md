@@ -174,6 +174,8 @@ WatchConfig(output="silent")
 
 Issues and pull requests are welcome. To add a new architecture to the auto-detection registry, open an issue or add the router class name(s) to `_ARCHITECTURE_REGISTRY` in `hooks/detection.py` and submit a PR.
 
+For full contribution guidelines, see [**CONTRIBUTING.md**](CONTRIBUTING.md).
+
 ---
 
 ## License
