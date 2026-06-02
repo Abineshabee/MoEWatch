@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Testing & coverage
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Type checking
+.mypy_cache/
+
+# Linting
+.ruff_cache/
+
+# Environment
+.env
+.env.*
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+*.ipynb~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+
+# Weights & model files
+*.bin
+*.pt
+*.pth
+*.safetensors
+
+# Experiment tracking
+wandb/
+runs/

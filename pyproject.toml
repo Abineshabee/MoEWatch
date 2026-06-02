@@ -1,0 +1,98 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "moewatch"
+version = "0.1.0"
+description = "A lightweight diagnostic and audit library for Mixture-of-Experts (MoE) models in HuggingFace Transformers"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "Abinesh", github = "Abineshabee" }
+]
+keywords = [
+    "mixture-of-experts",
+    "moe",
+    "huggingface",
+    "transformers",
+    "diagnostics",
+    "pytorch",
+    "llm",
+    "training",
+    "routing",
+    "expert-collapse",
+]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: POSIX :: Linux",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "torch>=2.0.0",
+    "transformers>=4.36.0",
+    "numpy>=1.21.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+wandb = [
+    "wandb>=0.16.0",
+]
+tensorboard = [
+    "tensorboard>=2.13.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Abineshabee/moewatch"
+Repository = "https://github.com/Abineshabee/moewatch"
+Issues = "https://github.com/Abineshabee/moewatch/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["moewatch"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=moewatch --cov-report=term-missing --cov-fail-under=80"
+filterwarnings = [
+    "ignore::DeprecationWarning:torchao",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]
+
+[tool.coverage.run]
+omit = ["tests/*"]
+
+[tool.black]
+line-length = 88
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py38"
+
+[tool.mypy]
+python_version = "3.8"
+strict = false
+ignore_missing_imports = true
