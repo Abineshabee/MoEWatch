@@ -160,31 +160,6 @@ WatchConfig(output="silent")
 
 ---
 
-## Project Structure
-
-```
-moewatch/
-├── __init__.py          # public API surface
-├── config.py            # WatchConfig, OutputMode, AlertLevel
-├── _audit.py            # audit() — offline one-shot diagnostic
-├── _watcher.py          # MoEWatch, MoEWatchCallback, Alert
-├── hooks/
-│   ├── detection.py     # auto-detect router modules (registry + heuristic)
-│   ├── manager.py       # hook lifecycle management
-│   └── router_hook.py   # forward hook + RoutingEvent
-├── collector/
-│   ├── ring_buffer.py   # fixed-capacity circular buffer
-│   └── stat_collector.py
-├── analyzer/
-│   ├── entropy.py       # routing entropy analysis
-│   └── collapse.py      # dead / cold expert detection
-└── report/
-    ├── audit_report.py  # structured AuditReport data model
-    └── cli_reporter.py  # terminal renderer
-```
-
----
-
 ## Documentation
 
 - [Getting started](https://github.com/Abineshabee/moewatch/docs/quickstart.md)
