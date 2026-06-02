@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>moewatch — project structure</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg2: #f8f9fa;
+    --bg3: #f1f3f5;
+    --border: rgba(0,0,0,0.10);
+    --border2: rgba(0,0,0,0.18);
+    --text1: #1a1a1a;
+    --text2: #555e6c;
+    --text3: #8a92a0;
+    --info-bg: #e8f2ff;
+    --info-text: #1a5cc8;
+    --success-bg: #e8f8ef;
+    --success-text: #1a7a42;
+    --warn-bg: #fff7e0;
+    --warn-text: #9a6500;
+    --neutral-bg: #f0f1f3;
+    --neutral-text: #555e6c;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --mono: 'Courier New', Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --icon-warn: #d08000;
+    --icon-info: #1a5cc8;
+    --icon-success: #1a7a42;
+    --icon-muted: #8a92a0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1b1e;
+      --bg2: #212226;
+      --bg3: #2a2b30;
+      --border: rgba(255,255,255,0.09);
+      --border2: rgba(255,255,255,0.16);
+      --text1: #e8eaf0;
+      --text2: #9aa3b2;
+      --text3: #5a6475;
+      --info-bg: #0d2540;
+      --info-text: #6ba3f5;
+      --success-bg: #0a2318;
+      --success-text: #4ec87a;
+      --warn-bg: #2a1e00;
+      --warn-text: #f5c040;
+      --neutral-bg: #2a2b30;
+      --neutral-text: #9aa3b2;
+      --icon-warn: #f5c040;
+      --icon-info: #6ba3f5;
+      --icon-success: #4ec87a;
+      --icon-muted: #5a6475;
+    }
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg3);
+    color: var(--text1);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--bg);
+    border-bottom: 0.5px solid var(--border2);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  header .logo {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text1);
+    letter-spacing: -0.02em;
+  }
+
+  header .logo span {
+    color: var(--info-text);
+  }
+
+  header .subtitle {
+    font-size: 12px;
+    color: var(--text3);
+    border-left: 0.5px solid var(--border2);
+    padding-left: 12px;
+    margin-left: 4px;
+  }
+
+  header .badge-legend {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 16px;
+    padding: 20px 24px;
+    max-width: 1100px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 680px) {
+    .main { grid-template-columns: 1fr; }
+    .detail-col { position: static; }
+  }
+
+  .panel {
+    background: var(--bg);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel-header {
+    padding: 10px 14px;
+    border-bottom: 0.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg2);
+    flex-shrink: 0;
+  }
+
+  .panel-header .title {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text2);
+  }
+
+  .search-bar {
+    padding: 8px 10px;
+    border-bottom: 0.5px solid var(--border);
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .search-bar i {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    color: var(--text3);
+    pointer-events: none;
+  }
+
+  .search-bar input {
+    width: 100%;
+    background: var(--bg2);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px 6px 30px;
+    font-size: 12px;
+    color: var(--text1);
+    font-family: var(--mono);
+    outline: none;
+    transition: border-color .15s;
+  }
+
+  .search-bar input:focus { border-color: var(--info-text); }
+  .search-bar input::placeholder { color: var(--text3); }
+
+  .tree-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 4px;
+    max-height: 560px;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background .1s;
+    gap: 0;
+  }
+
+  .row:hover { background: var(--bg2); }
+
+  .row.active {
+    background: var(--info-bg);
+  }
+
+  .row.active .name { color: var(--info-text); }
+
+  .indent {
+    color: var(--border2);
+    white-space: pre;
+    font-size: 11px;
+    font-family: var(--mono);
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .ico {
+    font-size: 15px;
+    margin-right: 6px;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .name {
+    color: var(--text1);
+    font-size: 12.5px;
+    font-family: var(--mono);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .name.dir { font-weight: 600; }
+
+  .badge {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-left: 7px;
+    font-family: var(--sans);
+    flex-shrink: 0;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .b-core { background: var(--info-bg); color: var(--info-text); }
+  .b-test { background: var(--success-bg); color: var(--success-text); }
+  .b-ci   { background: var(--warn-bg);   color: var(--warn-text); }
+  .b-doc  { background: var(--neutral-bg); color: var(--neutral-text); }
+
+  .no-results {
+    padding: 24px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  .detail-col {
+    position: sticky;
+    top: 20px;
+    align-self: start;
+  }
+
+  .detail-inner {
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-height: 200px;
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 20px;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .empty-state i { font-size: 28px; color: var(--text3); }
+  .empty-state p { font-size: 13px; color: var(--text3); }
+
+  .detail-name {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text1);
+    margin-bottom: 3px;
+    word-break: break-all;
+  }
+
+  .detail-path {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    margin-bottom: 12px;
+  }
+
+  .divider {
+    height: 0.5px;
+    background: var(--border);
+    margin-bottom: 12px;
+  }
+
+  .detail-desc {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.7;
+    margin-bottom: 14px;
+  }
+
+  .export-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--text3);
+    margin-bottom: 7px;
+  }
+
+  .exports {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .exp-tag {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--info-text);
+    background: var(--info-bg);
+    border-radius: 4px;
+    padding: 2px 8px;
+  }
+
+  footer {
+    text-align: center;
+    padding: 14px;
+    font-size: 11px;
+    color: var(--text3);
+    border-top: 0.5px solid var(--border);
+    background: var(--bg);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">moe<span>watch</span></div>
+  <div class="subtitle">project structure</div>
+  <div class="badge-legend">
+    <span class="badge b-core">core</span>
+    <span class="badge b-test">test</span>
+    <span class="badge b-ci">CI</span>
+    <span class="badge b-doc">doc</span>
+  </div>
+</header>
+
+<main class="main">
+  <div class="panel">
+    <div class="panel-header">
+      <i class="ti ti-folder-open" aria-hidden="true" style="font-size:15px;color:var(--icon-warn)"></i>
+      <span class="title">moewatch/</span>
+    </div>
+    <div class="search-bar">
+      <i class="ti ti-search" aria-hidden="true"></i>
+      <input type="text" id="search" placeholder="filter files…" autocomplete="off">
+    </div>
+    <div class="tree-body" id="tree"></div>
+  </div>
+
+  <div class="detail-col">
+    <div class="panel" id="detail-panel">
+      <div class="panel-header">
+        <i class="ti ti-file-description" aria-hidden="true" style="font-size:15px;color:var(--icon-muted)"></i>
+        <span class="title">file details</span>
+      </div>
+      <div class="detail-inner" id="detail">
+        <div class="empty-state">
+          <i class="ti ti-hand-click" aria-hidden="true"></i>
+          <p>Click any file or folder<br>to see its purpose and exports</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>moewatch file explorer — click any node to inspect</footer>
+
+<script>
+const TREE=[
+  {type:'dir',name:'moewatch/',indent:0,id:'root',path:'/',desc:'Root of the repository. Contains all config files, CI workflows, and the installable package.',exports:[]},
+  {type:'file',name:'README.md',indent:1,badge:'doc',id:'readme',path:'README.md',desc:'The public face of the library. Covers: one-line install, quick-start snippet, feature overview, honest scope statement, and explicit acknowledgment of model-clinic. Includes a live Colab badge.',exports:[]},
+  {type:'file',name:'pyproject.toml',indent:1,badge:'core',id:'pyproject',path:'pyproject.toml',desc:'Single source of truth for packaging. Declares name, version, Python ≥3.8 constraint, dependencies (torch, transformers, numpy), optional extras (wandb, tensorboard), and entry points.',exports:['[project]','[build-system]','[tool.pytest]','[tool.ruff]']},
+  {type:'file',name:'LICENSE',indent:1,badge:'doc',id:'license',path:'LICENSE',desc:'Apache 2.0 — permissive license appropriate for a research-tooling library that needs broad adoption.',exports:[]},
+  {type:'file',name:'.gitignore',indent:1,badge:'doc',id:'gitignore',path:'.gitignore',desc:'Ignores __pycache__, .env, dist/, build/, *.egg-info, .pytest_cache, and local notebook checkpoints.',exports:[]},
+  {type:'file',name:'CHANGELOG.md',indent:1,badge:'doc',id:'changelog',path:'CHANGELOG.md',desc:'Version history. Starts at v0.1.0 with the four core diagnostics. Keeps an "Unreleased" section at the top for in-progress changes.',exports:[]},
+  {type:'file',name:'CONTRIBUTING.md',indent:1,badge:'doc',id:'contributing',path:'CONTRIBUTING.md',desc:'Onboarding guide for community contributors. Covers: dev install, running tests, adding a new router pattern, the multi-GPU contribution surface. Key for v0.3 distributed work.',exports:[]},
+  {type:'dir',name:'.github/',indent:1,id:'github_dir',path:'.github/',desc:'All GitHub-specific automation lives here — CI workflows and issue/PR templates.',exports:[]},
+  {type:'dir',name:'workflows/',indent:2,id:'workflows_dir',path:'.github/workflows/',desc:'GitHub Actions workflow YAML files.',exports:[]},
+  {type:'file',name:'ci.yml',indent:3,badge:'ci',id:'ci',path:'.github/workflows/ci.yml',desc:'Main CI pipeline. Runs on every push and PR. Steps: install deps → lint (ruff) → type-check (mypy) → pytest on CPU → upload coverage to Codecov. Matrix: Python 3.8, 3.10, 3.12.',exports:['on: push / pull_request','jobs: lint, typecheck, test']},
+  {type:'file',name:'publish.yml',indent:3,badge:'ci',id:'publish',path:'.github/workflows/publish.yml',desc:'PyPI release workflow. Triggered on version tag (v*.*.*). Builds the wheel, runs tests, then publishes via OIDC trusted publisher — no stored API key.',exports:['on: push tags v*.*.*']},
+  {type:'dir',name:'ISSUE_TEMPLATE/',indent:2,id:'issue_dir',path:'.github/ISSUE_TEMPLATE/',desc:'Structured issue templates shown in the GitHub "New Issue" picker.',exports:[]},
+  {type:'file',name:'bug_report.md',indent:3,badge:'doc',id:'bug',path:'.github/ISSUE_TEMPLATE/bug_report.md',desc:'Bug report template. Required fields: moewatch version, model name, Python version, GPU info, minimal repro snippet, actual vs expected output.',exports:[]},
+  {type:'file',name:'feature_request.md',indent:3,badge:'doc',id:'feat',path:'.github/ISSUE_TEMPLATE/feature_request.md',desc:'Feature request template. Asks for: use case description, which model/architecture it targets, whether the contributor can implement it.',exports:[]},
+  {type:'dir',name:'moewatch/',indent:1,id:'pkg',path:'moewatch/',desc:'The installable Python package — everything under pip install moewatch.',exports:[]},
+  {type:'file',name:'__init__.py',indent:2,badge:'core',id:'init',path:'moewatch/__init__.py',desc:'Public API surface. Re-exports the symbols researchers actually type. Keeps the import tree shallow — users never need to know about internal modules.',exports:['audit','MoEWatch','WatchConfig','__version__']},
+  {type:'file',name:'_audit.py',indent:2,badge:'core',id:'audit_f',path:'moewatch/_audit.py',desc:'Implements audit(model, dataloader, steps). Orchestrates: attach hooks → run N forward passes → collect stats → return AuditReport. The main entry point for offline diagnostics.',exports:['audit()']},
+  {type:'file',name:'_watcher.py',indent:2,badge:'core',id:'watcher',path:'moewatch/_watcher.py',desc:'Implements MoEWatch — the training-time monitor. Exposes attach(trainer) using HuggingFace TrainerCallback, and a standalone step() method for custom loops. Owns the alert emit logic.',exports:['MoEWatch','MoEWatchCallback']},
+  {type:'file',name:'config.py',indent:2,badge:'core',id:'config',path:'moewatch/config.py',desc:'WatchConfig dataclass. All thresholds live here: dead_threshold, entropy_warn, entropy_critical, window_steps, sample_every, log_every, output mode. Validates on construction.',exports:['WatchConfig']},
+  {type:'dir',name:'hooks/',indent:2,id:'hooks_dir',path:'moewatch/hooks/',desc:'PyTorch forward-hook machinery. Zero model modifications — reads only.',exports:[]},
+  {type:'file',name:'__init__.py',indent:3,id:'hooks_init',path:'moewatch/hooks/__init__.py',desc:'Re-exports HookManager and RouterHook for the hooks sub-package.',exports:['HookManager','RouterHook']},
+  {type:'file',name:'manager.py',indent:3,badge:'core',id:'manager',path:'moewatch/hooks/manager.py',desc:'HookManager owns the hook lifecycle: attach(), detach(), and a context-manager interface. Tracks all registered hooks to guarantee clean teardown — no leaking hooks after a crash.',exports:['HookManager']},
+  {type:'file',name:'router_hook.py',indent:3,badge:'core',id:'router_hook',path:'moewatch/hooks/router_hook.py',desc:'RouterHook is the actual PyTorch forward hook. Fires on each router module forward pass, extracts routing logits, and writes a RoutingEvent to the StatCollector ring buffer.',exports:['RouterHook','RoutingEvent']},
+  {type:'file',name:'detection.py',indent:3,badge:'core',id:'detection',path:'moewatch/hooks/detection.py',desc:'Auto-detection of router modules. Two-pass strategy: (1) named pattern scan for known architectures; (2) heuristic fallback on "router"/"gate"/"sparse" in class name. Manual override via config.',exports:['detect_router_modules()']},
+  {type:'dir',name:'collector/',indent:2,id:'coll_dir',path:'moewatch/collector/',desc:'Asynchronous stats aggregation. Decoupled from the hot forward-pass path.',exports:[]},
+  {type:'file',name:'__init__.py',indent:3,id:'coll_init',path:'moewatch/collector/__init__.py',desc:'Re-exports StatCollector and RingBuffer.',exports:['StatCollector','RingBuffer']},
+  {type:'file',name:'ring_buffer.py',indent:3,badge:'core',id:'ring',path:'moewatch/collector/ring_buffer.py',desc:'Fixed-memory circular buffer for per-step routing events. Prevents unbounded memory growth during long training runs. Configurable capacity.',exports:['RingBuffer']},
+  {type:'file',name:'stat_collector.py',indent:3,badge:'core',id:'stat_coll',path:'moewatch/collector/stat_collector.py',desc:'Aggregates RoutingEvents into per-layer statistics: token counts per expert, step timestamps, raw logit tensors. CPU-side to avoid GPU stalls.',exports:['StatCollector','LayerStats']},
+  {type:'dir',name:'analyzer/',indent:2,id:'anal_dir',path:'moewatch/analyzer/',desc:'Metric computation layer. Pure functions — no side effects, fully testable.',exports:[]},
+  {type:'file',name:'__init__.py',indent:3,id:'anal_init',path:'moewatch/analyzer/__init__.py',desc:'Re-exports EntropyAnalyzer and CollapseDetector.',exports:['EntropyAnalyzer','CollapseDetector']},
+  {type:'file',name:'entropy.py',indent:3,badge:'core',id:'entropy',path:'moewatch/analyzer/entropy.py',desc:'Computes per-layer Shannon entropy H = -Σ p_i log(p_i). Tracks trend over window_steps, flags >20% drops as WARN, normalises against theoretical maximum.',exports:['EntropyAnalyzer','compute_entropy()']},
+  {type:'file',name:'collapse.py',indent:3,badge:'core',id:'collapse',path:'moewatch/analyzer/collapse.py',desc:'CollapseDetector identifies dead and cold experts per layer. Distinguishes cold (recoverable, <500 steps unseen) from dead (confirmed, flagged ERROR). Computes load imbalance score.',exports:['CollapseDetector','ExpertStatus']},
+  {type:'dir',name:'report/',indent:2,id:'rep_dir',path:'moewatch/report/',desc:'Output formatting. Separates concerns between data (AuditReport) and presentation (CLIReporter).',exports:[]},
+  {type:'file',name:'__init__.py',indent:3,id:'rep_init',path:'moewatch/report/__init__.py',desc:'Re-exports AuditReport and CLIReporter.',exports:['AuditReport','CLIReporter']},
+  {type:'file',name:'audit_report.py',indent:3,badge:'core',id:'audit_rep',path:'moewatch/report/audit_report.py',desc:'Structured result object returned by audit(). Holds per-layer metrics, expert statuses, entropy scores. Methods: summary(), dead_experts(), routing_entropy(), utilization(), to_json().',exports:['AuditReport']},
+  {type:'file',name:'cli_reporter.py',indent:3,badge:'core',id:'cli_rep',path:'moewatch/report/cli_reporter.py',desc:'Formats AuditReport as coloured ASCII terminal output. Uses ANSI codes with NO_COLOR fallback. Renders utilization histograms, entropy bars, and alert banners.',exports:['CLIReporter']},
+  {type:'dir',name:'tests/',indent:1,id:'tests_dir',path:'tests/',desc:'Full test suite. Runs on CPU with a synthetic MoE — no GPU or real model weights required in CI.',exports:[]},
+  {type:'file',name:'conftest.py',indent:2,badge:'test',id:'conftest',path:'tests/conftest.py',desc:'Pytest fixtures: a minimal SyntheticMoE model, tiny DataLoader of random tensors, and a default WatchConfig. Makes every test self-contained and GPU-free.',exports:['synthetic_model','tiny_dataloader','default_config']},
+  {type:'file',name:'test_detection.py',indent:2,badge:'test',id:'t_detect',path:'tests/test_detection.py',desc:'Tests router module auto-detection against a synthetic MoE, a mock MixtralSparseMoeBlock, and a custom-named router. Verifies graceful no-op when detection fails.',exports:[]},
+  {type:'file',name:'test_hooks.py',indent:2,badge:'test',id:'t_hooks',path:'tests/test_hooks.py',desc:'Tests HookManager lifecycle: attach, detach, context-manager teardown, and no leaked hooks after exception. Verifies RouterHook fires and writes to collector.',exports:[]},
+  {type:'file',name:'test_collector.py',indent:2,badge:'test',id:'t_coll',path:'tests/test_collector.py',desc:'Tests RingBuffer capacity wrapping and StatCollector aggregation. Verifies expert token counts sum to total tokens processed.',exports:[]},
+  {type:'file',name:'test_entropy.py',indent:2,badge:'test',id:'t_ent',path:'tests/test_entropy.py',desc:'Tests EntropyAnalyzer with known distributions: uniform (max entropy), one-hot (zero entropy), collapsed distribution. Verifies thresholds trigger at correct values.',exports:[]},
+  {type:'file',name:'test_collapse.py',indent:2,badge:'test',id:'t_coll2',path:'tests/test_collapse.py',desc:'Injects synthetic expert utilization data with a known dead expert (0%) and cold expert (0.05%). Asserts correct ExpertStatus output.',exports:[]},
+  {type:'file',name:'test_audit.py',indent:2,badge:'test',id:'t_audit',path:'tests/test_audit.py',desc:'Integration test: runs audit(synthetic_model, tiny_dataloader) end-to-end on CPU. Asserts AuditReport is non-empty, dead_experts() returns a list, and to_json() is valid JSON.',exports:[]},
+  {type:'file',name:'test_cli_reporter.py',indent:2,badge:'test',id:'t_report',path:'tests/test_cli_reporter.py',desc:'This test module ensures that CLIReporter produces accurate, readable, and reliable command-line audit reports by validating formatting helpers, report sections, expert diagnostics, recommendations, and exception-handling behavior.',exports:[]},
+  {type:'file',name:'test_watcher.py',indent:2,badge:'test',id:'t_watch',path:'tests/test_watcher.py',desc:'Tests MoEWatch attach/detach and TrainerCallback step hook. Verifies alerts fire at correct thresholds using pre-baked collapsed routing stats.',exports:[]},
+  {type:'dir',name:'examples/',indent:1,id:'examples_dir',path:'examples/',desc:'Runnable end-to-end example scripts demonstrating moewatch integration with real-world MoE architectures. Each script is self-contained and annotated for readability.',exports:[]},
+  {type:'file',name:'transformers_example.py',indent:2,badge:'doc',id:'ex_transformers',path:'examples/transformers_example.py',desc:'Generic HuggingFace Transformers integration example. Shows how to load any MoE model via AutoModelForCausalLM, attach MoEWatch using WatchConfig defaults, run a short inference loop, and print the AuditReport summary. Serves as the canonical starting point for new users.',exports:[]},
+  {type:'file',name:'mixtral_example.py',indent:2,badge:'doc',id:'ex_mixtral',path:'examples/mixtral_example.py',desc:'Mixtral 8x7B-specific walkthrough. Demonstrates auto-detection of MixtralSparseMoeBlock router layers, WatchConfig tuning for Mixtral\'s 8-expert topology (dead_threshold, entropy_warn), and how to read per-layer utilization from the returned AuditReport.',exports:[]},
+  {type:'file',name:'qwen3_moe_example.py',indent:2,badge:'doc',id:'ex_qwen3',path:'examples/qwen3_moe_example.py',desc:'Qwen3-MoE integration example. Covers model loading with trust_remote_code, moewatch router detection for Qwen3\'s sparse attention-MoE hybrid, and interpreting entropy scores across the model\'s 128 experts per layer.',exports:[]},
+  {type:'file',name:'deepseek_example.py',indent:2,badge:'doc',id:'ex_deepseek',path:'examples/deepseek_example.py',desc:'DeepSeek-MoE integration example. Demonstrates fine-grained expert monitoring for DeepSeek\'s shared+routed expert architecture, manual router module override via WatchConfig for architectures that use non-standard naming, and collapse detection in a model with many fine-grained experts.',exports:[]},
+  {type:'dir',name:'benchmarks/',indent:1,id:'bench_dir',path:'benchmarks/',desc:'Performance benchmarking scripts that measure moewatch overhead — latency, throughput, and memory — relative to an unmonitored baseline. Results are used to validate the "< 3% overhead" claim in the README.',exports:[]},
+  {type:'file',name:'benchmark_mixtral.py',indent:2,badge:'test',id:'bench_mixtral',path:'benchmarks/benchmark_mixtral.py',desc:'Benchmarks moewatch hook overhead on Mixtral 8x7B. Runs 100 warmup + 500 timed forward passes with and without hooks attached. Reports mean latency, p95 latency, tokens/sec, and peak GPU memory delta. Outputs a JSON results file for CI regression tracking.',exports:[]},
+  {type:'file',name:'benchmark_qwen_moe.py',indent:2,badge:'test',id:'bench_qwen',path:'benchmarks/benchmark_qwen_moe.py',desc:'Benchmarks moewatch overhead on Qwen3-MoE. Mirrors the Mixtral benchmark structure with Qwen-specific batch sizes and sequence lengths. Includes a multi-GPU (DataParallel) variant to validate hook correctness under device splits.',exports:[]},
+  {type:'dir',name:'notebooks/',indent:1,id:'nb_dir',path:'notebooks/',desc:'Public Colab demo notebooks — both are v0.1 ship criteria.',exports:[]},
+  {type:'file',name:'quickstart_colab.ipynb',indent:2,badge:'doc',id:'nb1',path:'notebooks/quickstart_colab.ipynb',desc:'Primary demo notebook. Runs on Colab free T4. Loads OLMoE-1B-7B, attaches moewatch, runs audit(), and renders the full report. Includes a synthetic collapse demo that does not require model download.',exports:[]},
+  {type:'file',name:'synthetic_moe_demo.ipynb',indent:2,badge:'doc',id:'nb2',path:'notebooks/synthetic_moe_demo.ipynb',desc:'CPU-only demo. Creates a toy MoE, manually induces expert collapse, and shows moewatch catching it. Useful for contributors without GPU access.',exports:[]},
+  {type:'dir',name:'docs/',indent:1,id:'docs_dir',path:'docs/',desc:'Documentation source. Minimal in v0.1 — README is the primary doc. Expands in v0.2 with API reference.',exports:[]},
+  {type:'file',name:'api_reference.md',indent:2,badge:'doc',id:'api_ref',path:'docs/api_reference.md',desc:'API reference for audit(), MoEWatch, WatchConfig, and AuditReport. Links to README and notebooks.',exports:[]},
+  {type:'file',name:'competitive_landscape.md',indent:2,badge:'doc',id:'compete',path:'docs/competitive_landscape.md',desc:'Honest write-up of the tooling gap: model-clinic, chuk-lazarus, MLXLMProbe, LibMoE, MixtureKit. Used for README positioning.',exports:[]},
+];
+
+function fileIcon(name, type) {
+  const s = 'font-size:15px;';
+  if (type === 'dir') return `<i class="ti ti-folder" aria-hidden="true" style="${s}color:var(--icon-warn)"></i>`;
+  if (name.endsWith('.py')) return `<i class="ti ti-file-code" aria-hidden="true" style="${s}color:var(--icon-info)"></i>`;
+  if (name.endsWith('.yml') || name.endsWith('.yaml')) return `<i class="ti ti-settings" aria-hidden="true" style="${s}color:var(--icon-warn)"></i>`;
+  if (name.endsWith('.md')) return `<i class="ti ti-file-text" aria-hidden="true" style="${s}color:var(--icon-muted)"></i>`;
+  if (name.endsWith('.ipynb')) return `<i class="ti ti-notebook" aria-hidden="true" style="${s}color:var(--icon-success)"></i>`;
+  if (name.endsWith('.toml')) return `<i class="ti ti-adjustments" aria-hidden="true" style="${s}color:var(--icon-muted)"></i>`;
+  return `<i class="ti ti-file" aria-hidden="true" style="${s}color:var(--icon-muted)"></i>`;
+}
+
+function badgeHtml(b) {
+  if (!b) return '';
+  const map = { core: ['b-core','core'], test: ['b-test','test'], ci: ['b-ci','CI'], doc: ['b-doc','doc'] };
+  const [cls, lbl] = map[b] || ['b-doc', b];
+  return `<span class="badge ${cls}">${lbl}</span>`;
+}
+
+function connector(indent) {
+  if (indent === 0) return '';
+  return '  '.repeat(indent - 1) + '├─ ';
+}
+
+const treeEl = document.getElementById('tree');
+const detailEl = document.getElementById('detail');
+let activeId = null;
+
+function renderTree(filter = '') {
+  treeEl.innerHTML = '';
+  const q = filter.toLowerCase().trim();
+  const visible = q ? TREE.filter(n => n.name.toLowerCase().includes(q) || n.desc.toLowerCase().includes(q)) : TREE;
+  if (!visible.length) {
+    treeEl.innerHTML = '<div class="no-results">No files match your search</div>';
+    return;
+  }
+  visible.forEach(node => {
+    const row = document.createElement('div');
+    row.className = 'row' + (node.id === activeId ? ' active' : '');
+    row.dataset.id = node.id;
+    row.innerHTML = `<span class="indent">${connector(node.indent)}</span><span class="ico">${fileIcon(node.name, node.type)}</span><span class="name${node.type === 'dir' ? ' dir' : ''}">${node.name}</span>${badgeHtml(node.badge || '')}`;
+    row.addEventListener('click', () => selectNode(node, row));
+    treeEl.appendChild(row);
+  });
+}
+
+function selectNode(node, row) {
+  document.querySelectorAll('.row').forEach(r => r.classList.remove('active'));
+  row.classList.add('active');
+  activeId = node.id;
+  const exportsHtml = node.exports && node.exports.length
+    ? `<div><p class="export-label">Exports / keys</p><div class="exports">${node.exports.map(e => `<span class="exp-tag">${e}</span>`).join('')}</div></div>`
+    : '';
+  detailEl.innerHTML = `
+    <div>
+      <p class="detail-name">${node.name}</p>
+      <p class="detail-path">${node.path || node.name}</p>
+      <div class="divider"></div>
+      <p class="detail-desc">${node.desc}</p>
+    </div>
+    ${exportsHtml}
+  `;
+}
+
+document.getElementById('search').addEventListener('input', e => renderTree(e.target.value));
+
+renderTree();
+</script>
+</body>
+</html>
