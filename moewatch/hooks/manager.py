@@ -81,16 +81,16 @@ class HookManager:
         collector: Any,
         config: WatchConfig,
     ) -> None:
-        self.model               = model
+        self.model = model
         self.router_module_names = list(router_module_names)
-        self.collector           = collector
-        self.config              = config
+        self.collector = collector
+        self.config = config
 
         # name → RouterHook
-        self._hooks:   Dict[str, RouterHook] = {}
+        self._hooks: Dict[str, RouterHook] = {}
         # name → torch hook handle (returned by register_forward_hook)
-        self._handles: Dict[str, Any]        = {}
-        self._attached: bool                 = False
+        self._handles: Dict[str, Any] = {}
+        self._attached: bool = False
 
     # --------------------------------------------------------------------------
     # Attach
@@ -121,20 +121,14 @@ class HookManager:
 
         # -- Build name → module map -----------------------------------------
         module_map: Dict[str, nn.Module] = {
-            name: module
-            for name, module in self.model.named_modules()
+            name: module for name, module in self.model.named_modules()
         }
 
         # -- Validate all names before touching the model --------------------
-        missing = [
-            name for name in self.router_module_names
-            if name not in module_map
-        ]
+        missing = [name for name in self.router_module_names if name not in module_map]
         if missing:
             missing_str = "\n  ".join(missing)
-            available_sample = "\n  ".join(
-                list(module_map.keys())[:10]
-            )
+            available_sample = "\n  ".join(list(module_map.keys())[:10])
             raise ValueError(
                 f"[moewatch] The following router module name(s) were not found "
                 f"in the model:\n  {missing_str}\n\n"
@@ -148,13 +142,13 @@ class HookManager:
         try:
             for name in self.router_module_names:
                 module = module_map[name]
-                hook   = RouterHook(
+                hook = RouterHook(
                     layer_name=name,
                     collector=self.collector,
                     config=self.config,
                 )
                 handle = module.register_forward_hook(hook)
-                self._hooks[name]   = hook
+                self._hooks[name] = hook
                 newly_registered[name] = handle
                 log.debug("[moewatch] Hook attached: %s", name)
 
@@ -163,12 +157,12 @@ class HookManager:
             for h in newly_registered.values():
                 try:
                     h.remove()
-                except Exception:   # pragma: no cover
+                except Exception:  # pragma: no cover
                     pass
             self._hooks.clear()
             raise
 
-        self._handles  = newly_registered
+        self._handles = newly_registered
         self._attached = True
 
         log.info(
@@ -199,10 +193,10 @@ class HookManager:
             try:
                 handle.remove()
                 log.debug("[moewatch] Hook detached: %s", name)
-            except Exception as exc:                    # pragma: no cover
+            except Exception as exc:  # pragma: no cover
                 failed.append(f"{name}: {exc}")
 
-        if failed:                                      # pragma: no cover
+        if failed:  # pragma: no cover
             log.warning(
                 "[moewatch] Non-fatal errors during hook removal:\n  %s",
                 "\n  ".join(failed),
@@ -261,9 +255,4 @@ class HookManager:
 
     def __repr__(self) -> str:
         status = "attached" if self._attached else "detached"
-        return (
-            f"HookManager("
-            f"hooks={len(self._handles)}, "
-            f"status={status}"
-            f")"
-        )
+        return f"HookManager(" f"hooks={len(self._handles)}, " f"status={status}" f")"

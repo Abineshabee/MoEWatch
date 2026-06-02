@@ -69,6 +69,7 @@ log = logging.getLogger(__name__)
 # LayerStats — per-layer aggregated statistics
 # ------------------------------------------------------------------------------
 
+
 @dataclass
 class LayerStats:
     """Aggregated routing statistics for a single MoE router layer.
@@ -116,17 +117,17 @@ class LayerStats:
         ``None`` when no raw logits are available.
     """
 
-    layer_name:           str
-    n_experts:            int
-    expert_counts:        torch.Tensor          # shape: (n_experts,), int64, CPU
-    total_tokens:         int
-    utilization:          torch.Tensor          # shape: (n_experts,), float32, CPU
+    layer_name: str
+    n_experts: int
+    expert_counts: torch.Tensor  # shape: (n_experts,), int64, CPU
+    total_tokens: int
+    utilization: torch.Tensor  # shape: (n_experts,), float32, CPU
     load_imbalance_score: float
-    top_k:                int                   = 1
-    event_count:          int                   = 0
-    step_range:           tuple                 = (-1, -1)
-    has_raw_logits:       bool                  = False
-    raw_logits_window:    Optional[List[torch.Tensor]] = None
+    top_k: int = 1
+    event_count: int = 0
+    step_range: tuple = (-1, -1)
+    has_raw_logits: bool = False
+    raw_logits_window: Optional[List[torch.Tensor]] = None
 
     # ------------------------------------------------------------------
     # Convenience properties
@@ -137,7 +138,6 @@ class LayerStats:
         """True when no events have been collected for this layer."""
         return self.event_count == 0
 
-
     def dead_mask(self, threshold: float = 0.001) -> torch.Tensor:
         """Boolean mask — True for experts at or below *threshold* utilisation."""
         return self.utilization <= threshold
@@ -145,26 +145,27 @@ class LayerStats:
     def to_dict(self) -> dict:
         """JSON-serialisable summary (tensors converted to Python lists)."""
         return {
-            "layer_name":           self.layer_name,
-            "n_experts":            self.n_experts,
-            "expert_counts":        self.expert_counts.tolist(),
-            "total_tokens":         self.total_tokens,
-            "utilization":          self.utilization.tolist(),
+            "layer_name": self.layer_name,
+            "n_experts": self.n_experts,
+            "expert_counts": self.expert_counts.tolist(),
+            "total_tokens": self.total_tokens,
+            "utilization": self.utilization.tolist(),
             "load_imbalance_score": (
                 self.load_imbalance_score
                 if self.load_imbalance_score == self.load_imbalance_score  # NaN check
                 else None
             ),
-            "top_k":                self.top_k,
-            "event_count":          self.event_count,
-            "step_range":           list(self.step_range),
-            "has_raw_logits":       self.has_raw_logits,
+            "top_k": self.top_k,
+            "event_count": self.event_count,
+            "step_range": list(self.step_range),
+            "has_raw_logits": self.has_raw_logits,
         }
 
 
 # ------------------------------------------------------------------------------
 # _LayerAccumulator — internal per-layer mutable state
 # ------------------------------------------------------------------------------
+
 
 @dataclass
 class _LayerAccumulator:
@@ -174,16 +175,16 @@ class _LayerAccumulator:
     never part of the public API.
     """
 
-    layer_name:      str
-    ring_buffer:     RingBuffer
+    layer_name: str
+    ring_buffer: RingBuffer
     # Running totals — updated on every add_event() call
-    running_counts:  Optional[torch.Tensor]  = None   # (n_experts,) int64
-    total_tokens:    int                     = 0
-    n_experts:       int                     = 0
-    top_k:           int                     = 1
-    first_step:      int                     = -1
-    last_step:       int                     = -1
-    event_count:     int                     = 0
+    running_counts: Optional[torch.Tensor] = None  # (n_experts,) int64
+    total_tokens: int = 0
+    n_experts: int = 0
+    top_k: int = 1
+    first_step: int = -1
+    last_step: int = -1
+    event_count: int = 0
 
     def update(self, event: "RoutingEvent") -> None:
         """Integrate one RoutingEvent into the running totals."""
@@ -197,7 +198,7 @@ class _LayerAccumulator:
 
         # First event — initialise accumulators from the event dimensions
         if self.running_counts is None:
-            self.n_experts      = event.n_experts
+            self.n_experts = event.n_experts
             self.running_counts = torch.zeros(event.n_experts, dtype=torch.int64)
 
         # Handle n_experts mismatch (architecture change mid-run — rare but possible)
@@ -210,14 +211,14 @@ class _LayerAccumulator:
                 self.n_experts,
                 event.n_experts,
             )
-            self.n_experts      = event.n_experts
+            self.n_experts = event.n_experts
             self.running_counts = torch.zeros(event.n_experts, dtype=torch.int64)
-            self.total_tokens   = 0
+            self.total_tokens = 0
 
         self.running_counts += event.expert_counts.to(torch.int64)
-        self.total_tokens   += event.total_tokens
-        self.top_k           = event.top_k
-        self.event_count    += 1
+        self.total_tokens += event.total_tokens
+        self.top_k = event.top_k
+        self.event_count += 1
 
         if self.first_step == -1:
             self.first_step = event.step
@@ -227,6 +228,7 @@ class _LayerAccumulator:
 # ------------------------------------------------------------------------------
 # StatCollector
 # ------------------------------------------------------------------------------
+
 
 class StatCollector:
     """Aggregates :class:`~moewatch.hooks.router_hook.RoutingEvent` objects
@@ -312,7 +314,7 @@ class StatCollector:
             acc.ring_buffer.append(event)
             acc.update(event)
 
-        except Exception as exc:                    # pragma: no cover
+        except Exception as exc:  # pragma: no cover
             log.warning(
                 "[moewatch] StatCollector.add_event() error for layer %s: %s",
                 getattr(event, "layer_name", "unknown"),
@@ -381,18 +383,18 @@ class StatCollector:
 
         # -- Rolling window: filter ring buffer to last window_steps events ---
         all_events = acc.ring_buffer.snapshot()
-        window_events = all_events[-self.config.window_steps:]
+        window_events = all_events[-self.config.window_steps :]
 
         if not window_events:
             # Ring buffer cleared between lock acquisition — return running totals
             window_events = all_events
 
         # -- Aggregate counts over the window ---------------------------------
-        n_experts     = acc.n_experts
+        n_experts = acc.n_experts
         window_counts = torch.zeros(n_experts, dtype=torch.int64)
         window_tokens = 0
         raw_logits_list: List[torch.Tensor] = []
-        has_raw_logits  = False
+        has_raw_logits = False
 
         for ev in window_events:
             if ev.n_experts != n_experts:
@@ -414,7 +416,7 @@ class StatCollector:
         # -- Load imbalance score (max / mean) --------------------------------
         if window_tokens > 0 and n_experts > 0:
             mean_util = utilization.mean().item()
-            max_util  = utilization.max().item()
+            max_util = utilization.max().item()
             load_imbalance = max_util / mean_util if mean_util > 0 else float("nan")
         else:
             load_imbalance = float("nan")
@@ -422,10 +424,10 @@ class StatCollector:
         # -- Step range -------------------------------------------------------
         if window_events:
             first_step = window_events[0].step
-            last_step  = window_events[-1].step
+            last_step = window_events[-1].step
         else:
             first_step = acc.first_step
-            last_step  = acc.last_step
+            last_step = acc.last_step
 
         return LayerStats(
             layer_name=acc.layer_name,
@@ -463,10 +465,10 @@ class StatCollector:
             for acc in targets:
                 acc.ring_buffer.clear()
                 acc.running_counts = None
-                acc.total_tokens   = 0
-                acc.event_count    = 0
-                acc.first_step     = -1
-                acc.last_step      = -1
+                acc.total_tokens = 0
+                acc.event_count = 0
+                acc.first_step = -1
+                acc.last_step = -1
 
         scope = layer_name or "all layers"
         log.debug("[moewatch] StatCollector cleared: %s.", scope)
@@ -483,10 +485,7 @@ class StatCollector:
     @property
     def total_events(self) -> int:
         """Total events written across all layers (sum of ring buffer totals)."""
-        return sum(
-            acc.ring_buffer.total_written
-            for acc in self._accumulators.values()
-        )
+        return sum(acc.ring_buffer.total_written for acc in self._accumulators.values())
 
     def buffer_utilization(self) -> Dict[str, float]:
         """Return the ring buffer fill fraction for each layer (0.0 – 1.0)."""
@@ -497,11 +496,10 @@ class StatCollector:
 
     def summary(self) -> str:
         """Return a one-line text summary of collector state."""
-        n_layers     = len(self._accumulators)
+        n_layers = len(self._accumulators)
         total_events = self.total_events
         full_buffers = sum(
-            1 for acc in self._accumulators.values()
-            if acc.ring_buffer.is_full
+            1 for acc in self._accumulators.values() if acc.ring_buffer.is_full
         )
         return (
             f"StatCollector: {n_layers} layer(s), "

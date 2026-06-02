@@ -50,32 +50,38 @@ log = logging.getLogger(__name__)
 # Lazy imports — keep top-level import fast; sub-packages are heavy
 # ---------------------------------------------------------------------------
 
+
 def _import_hooks():
-    from .hooks.manager    import HookManager
-    from .hooks.detection  import detect_router_modules
+    from .hooks.manager import HookManager
+    from .hooks.detection import detect_router_modules
+
     return HookManager, detect_router_modules
 
 
 def _import_collector():
     from .collector.stat_collector import StatCollector
+
     return StatCollector
 
 
 def _import_analyzers():
-    from .analyzer.entropy   import EntropyAnalyzer
-    from .analyzer.collapse  import CollapseDetector
+    from .analyzer.entropy import EntropyAnalyzer
+    from .analyzer.collapse import CollapseDetector
+
     return EntropyAnalyzer, CollapseDetector
 
 
 def _import_report():
     from .report.audit_report import AuditReport
-    from .report.cli_reporter  import CLIReporter
+    from .report.cli_reporter import CLIReporter
+
     return AuditReport, CLIReporter
 
 
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
+
 
 def _resolve_device(model: nn.Module) -> torch.device:
     """Return the device of the first parameter in *model*.
@@ -155,10 +161,7 @@ def _forward_pass(
 
     elif isinstance(batch, (list, tuple)):
         # (input_ids, attention_mask, ...) positional style
-        batch = tuple(
-            v.to(device) if isinstance(v, torch.Tensor) else v
-            for v in batch
-        )
+        batch = tuple(v.to(device) if isinstance(v, torch.Tensor) else v for v in batch)
         model(*batch)
 
     elif isinstance(batch, torch.Tensor):
@@ -179,6 +182,7 @@ def _forward_pass(
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
 
 def audit(
     model: nn.Module,
@@ -290,9 +294,7 @@ def audit(
         )
 
     if not isinstance(steps, int) or steps < 1:
-        raise ValueError(
-            f"[moewatch] steps must be a positive integer, got {steps!r}."
-        )
+        raise ValueError(f"[moewatch] steps must be a positive integer, got {steps!r}.")
 
     if config is None:
         config = WatchConfig()
@@ -327,9 +329,9 @@ def audit(
     # 2. Lazy-import sub-modules
     # ------------------------------------------------------------------
     HookManager, detect_router_modules = _import_hooks()
-    StatCollector                       = _import_collector()
-    EntropyAnalyzer, CollapseDetector   = _import_analyzers()
-    AuditReport, CLIReporter            = _import_report()
+    StatCollector = _import_collector()
+    EntropyAnalyzer, CollapseDetector = _import_analyzers()
+    AuditReport, CLIReporter = _import_report()
 
     # ------------------------------------------------------------------
     # 3. Detect (or accept manual) router modules
@@ -387,7 +389,7 @@ def audit(
     # 6. Main sampling loop — hooks attached for duration, always torn down
     # ------------------------------------------------------------------
     completed_steps = 0
-    start_time      = time.perf_counter()
+    start_time = time.perf_counter()
 
     with hook_manager:
         with _no_grad_ctx(use_no_grad):
@@ -436,11 +438,11 @@ def audit(
     # ------------------------------------------------------------------
     # 8. Analyze collected statistics
     # ------------------------------------------------------------------
-    layer_stats      = collector.get_all_stats()
+    layer_stats = collector.get_all_stats()
     entropy_analyzer = EntropyAnalyzer(config=config)
     collapse_detector = CollapseDetector(config=config)
 
-    entropy_results  = entropy_analyzer.analyze(layer_stats)
+    entropy_results = entropy_analyzer.analyze(layer_stats)
     collapse_results = collapse_detector.detect(layer_stats)
 
     # ------------------------------------------------------------------
@@ -468,6 +470,7 @@ def audit(
 # Private iterator helper
 # ---------------------------------------------------------------------------
 
+
 def _infinite_iter(batch: Any) -> Iterator[Any]:
     """Yield *batch* indefinitely (for synthetic-data mode)."""
     while True:
@@ -477,6 +480,7 @@ def _infinite_iter(batch: Any) -> Iterator[Any]:
 # ---------------------------------------------------------------------------
 # Pretty header
 # ---------------------------------------------------------------------------
+
 
 def _print_audit_header(
     n_routers: int,

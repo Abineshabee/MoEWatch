@@ -63,68 +63,76 @@ log = logging.getLogger(__name__)
 
 _ARCHITECTURE_REGISTRY: Dict[str, FrozenSet[str]] = {
     # Mixtral — meta-llama / mistralai
-    "Mixtral": frozenset({
-        "MixtralSparseMoeBlock",
-        "MixtralBlocSparseTop2MLP",   # some forks rename the block
-    }),
-
+    "Mixtral": frozenset(
+        {
+            "MixtralSparseMoeBlock",
+            "MixtralBlocSparseTop2MLP",  # some forks rename the block
+        }
+    ),
     # OLMoE — allenai
-    "OLMoE": frozenset({
-        "OlmoeMoE",
-        "OlmoeSparseMoeBlock",
-    }),
-
+    "OLMoE": frozenset(
+        {
+            "OlmoeMoE",
+            "OlmoeSparseMoeBlock",
+        }
+    ),
     # DeepSeek-MoE — deepseek-ai
-    "DeepSeek": frozenset({
-        "DeepseekMoE",
-        "DeepseekV2MoE",
-        "DeepseekV3MoE",
-        "MoEGate",                     # standalone gate module in DS-V2/V3
-    }),
-
+    "DeepSeek": frozenset(
+        {
+            "DeepseekMoE",
+            "DeepseekV2MoE",
+            "DeepseekV3MoE",
+            "MoEGate",  # standalone gate module in DS-V2/V3
+        }
+    ),
     # Qwen-MoE — Alibaba
-    "Qwen": frozenset({
-        "QwenMoE",
-        "Qwen2MoeSparseMoeBlock",
-        "Qwen3MoeSparseMoeBlock",
-    }),
-
+    "Qwen": frozenset(
+        {
+            "QwenMoE",
+            "Qwen2MoeSparseMoeBlock",
+            "Qwen3MoeSparseMoeBlock",
+        }
+    ),
     # Switch Transformer — Google (HuggingFace port)
-    "SwitchTransformer": frozenset({
-        "SwitchTransformersSparseMLP",
-        "SwitchTransformersTop1Router",
-    }),
-
+    "SwitchTransformer": frozenset(
+        {
+            "SwitchTransformersSparseMLP",
+            "SwitchTransformersTop1Router",
+        }
+    ),
     # Phi-MoE — Microsoft
-    "Phi": frozenset({
-        "PhiMoE",
-        "PhiMoESparseMoeBlock",
-    }),
-
+    "Phi": frozenset(
+        {
+            "PhiMoE",
+            "PhiMoESparseMoeBlock",
+        }
+    ),
     # NLLB-MoE / mBART-MoE — Meta
-    "NllbMoE": frozenset({
-        "NllbMoeSparseMLP",
-        "NllbMoeTop2Router",
-    }),
-
+    "NllbMoE": frozenset(
+        {
+            "NllbMoeSparseMLP",
+            "NllbMoeTop2Router",
+        }
+    ),
     # Arctic — Snowflake
-    "Arctic": frozenset({
-        "ArcticMoE",
-        "ArcticMoeBlock",
-    }),
-
+    "Arctic": frozenset(
+        {
+            "ArcticMoE",
+            "ArcticMoeBlock",
+        }
+    ),
     # Jamba — AI21 Labs
-    "Jamba": frozenset({
-        "JambaMoE",
-        "JambaSparseMoeBlock",
-    }),
+    "Jamba": frozenset(
+        {
+            "JambaMoE",
+            "JambaSparseMoeBlock",
+        }
+    ),
 }
 
 # Flattened set for O(1) membership tests
 _ALL_KNOWN_CLASSES: FrozenSet[str] = frozenset(
-    cls
-    for classes in _ARCHITECTURE_REGISTRY.values()
-    for cls in classes
+    cls for classes in _ARCHITECTURE_REGISTRY.values() for cls in classes
 )
 
 # ------------------------------------------------------------------------------
@@ -132,36 +140,40 @@ _ALL_KNOWN_CLASSES: FrozenSet[str] = frozenset(
 # ------------------------------------------------------------------------------
 
 # Substrings in class name that suggest a router/gate module
-_ROUTER_SUBSTRINGS: FrozenSet[str] = frozenset({
-    "router",
-    "gate",
-    "sparse",
-    "moe",
-    "expert_select",
-    "top_k",
-    "topk",
-    "routing",
-})
+_ROUTER_SUBSTRINGS: FrozenSet[str] = frozenset(
+    {
+        "router",
+        "gate",
+        "sparse",
+        "moe",
+        "expert_select",
+        "top_k",
+        "topk",
+        "routing",
+    }
+)
 
 # Substrings that disqualify a module even if it matches a router substring
 # (e.g. "GateProjection" in LLaMA FFN is not an MoE router)
-_EXCLUSION_SUBSTRINGS: FrozenSet[str] = frozenset({
-    "embedding",
-    "embed",
-    "norm",
-    "ln_",
-    "layernorm",
-    "attention",
-    "attn",
-    "mlp",             # plain FFN MLP — not a router
-    "projection",
-    "proj",
-    "lm_head",
-    "head",
-    "dropout",
-    "act",
-    "activation",
-})
+_EXCLUSION_SUBSTRINGS: FrozenSet[str] = frozenset(
+    {
+        "embedding",
+        "embed",
+        "norm",
+        "ln_",
+        "layernorm",
+        "attention",
+        "attn",
+        "mlp",  # plain FFN MLP — not a router
+        "projection",
+        "proj",
+        "lm_head",
+        "head",
+        "dropout",
+        "act",
+        "activation",
+    }
+)
 
 # Minimum number of parameters a module must have to be considered a router
 # (rules out tiny bias-only or scalar modules whose name contains "gate")
@@ -171,6 +183,7 @@ _MIN_PARAM_COUNT: int = 1
 # ------------------------------------------------------------------------------
 # Public API
 # ------------------------------------------------------------------------------
+
 
 def detect_router_modules(model: nn.Module) -> List[str]:
     """Auto-detect MoE router module names in *model*.
@@ -200,9 +213,9 @@ def detect_router_modules(model: nn.Module) -> List[str]:
     to bypass auto-detection on subsequent runs — useful for reproducibility.
     """
 
-    found_registry:  List[str] = []
+    found_registry: List[str] = []
     found_heuristic: List[str] = []
-    seen:            Set[str]  = set()
+    seen: Set[str] = set()
 
     # Count total modules for diagnostic logging
     all_modules = list(model.named_modules())
@@ -230,17 +243,13 @@ def detect_router_modules(model: nn.Module) -> List[str]:
                     name,
                     class_name,
                 )
-            continue   # no need to also check heuristic
+            continue  # no need to also check heuristic
 
         # -- Pass 2: heuristic fallback -------------------------------------
         class_lower = class_name.lower()
 
-        has_router_substring = any(
-            sub in class_lower for sub in _ROUTER_SUBSTRINGS
-        )
-        has_exclusion        = any(
-            ex in class_lower for ex in _EXCLUSION_SUBSTRINGS
-        )
+        has_router_substring = any(sub in class_lower for sub in _ROUTER_SUBSTRINGS)
+        has_exclusion = any(ex in class_lower for ex in _EXCLUSION_SUBSTRINGS)
 
         if has_router_substring and not has_exclusion:
             # Final guard: must have at least one learnable parameter
@@ -293,14 +302,14 @@ def detect_router_modules(model: nn.Module) -> List[str]:
 # Registry introspection helpers (useful for contributors and debugging)
 # ------------------------------------------------------------------------------
 
+
 def list_known_architectures() -> Dict[str, List[str]]:
     """Return the full architecture registry as a plain dict of lists.
 
     Useful for documentation generation and ``--list-architectures`` CLI flags.
     """
     return {
-        family: sorted(classes)
-        for family, classes in _ARCHITECTURE_REGISTRY.items()
+        family: sorted(classes) for family, classes in _ARCHITECTURE_REGISTRY.items()
     }
 
 
@@ -313,10 +322,11 @@ def is_known_router_class(class_name: str) -> bool:
 # Private helpers
 # ------------------------------------------------------------------------------
 
+
 def _log_detected(names: List[str]) -> None:
     """Log up to 5 detected names at INFO level."""
     preview = names[:5]
-    suffix  = f" (+ {len(names) - 5} more)" if len(names) > 5 else ""
+    suffix = f" (+ {len(names) - 5} more)" if len(names) > 5 else ""
     log.info(
         "[moewatch] Detected router modules:\n  %s%s",
         "\n  ".join(preview),
@@ -327,10 +337,9 @@ def _log_detected(names: List[str]) -> None:
 def _log_detection_failure(model: nn.Module, total_count: int) -> None:
     """Emit a detailed warning when detection finds nothing."""
     # Sample up to 20 module class names to help the user diagnose manually
-    sample_classes = list({
-        type(m).__name__
-        for _, m in list(model.named_modules())[:50]
-    })[:20]
+    sample_classes = list(
+        {type(m).__name__ for _, m in list(model.named_modules())[:50]}
+    )[:20]
 
     log.warning(
         "[moewatch] Router module detection found nothing in a model with "

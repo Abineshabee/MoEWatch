@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 
 from .audit_report import AuditReport, OverallHealth
-from .cli_reporter  import CLIReporter
+from .cli_reporter import CLIReporter
 
 __all__ = [
     "AuditReport",

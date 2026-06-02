@@ -87,6 +87,7 @@ _LN2: float = math.log(2.0)
 # §1.2  compute_entropy — Shannon entropy of a probability vector
 # ------------------------------------------------------------------------------
 
+
 def compute_entropy(probs: torch.Tensor) -> float:
     """Compute Shannon entropy H = -Σ pᵢ log₂(pᵢ) for a probability vector.
 
@@ -157,7 +158,7 @@ def compute_entropy(probs: torch.Tensor) -> float:
 
     # Clamp to [0, log₂(n)] to absorb floating-point rounding.
     n_experts = probs.shape[0]
-    h_max     = math.log2(n_experts) if n_experts > 1 else 0.0
+    h_max = math.log2(n_experts) if n_experts > 1 else 0.0
     return float(max(0.0, min(entropy, h_max)))
 
 
@@ -199,10 +200,10 @@ def compute_entropy_from_logits(logits: torch.Tensor) -> float:
 
     with torch.no_grad():
         log_probs = torch.log_softmax(logits.float().cpu(), dim=-1)  # (T, E)
-        probs     = log_probs.exp()                                   # (T, E)
+        probs = log_probs.exp()  # (T, E)
         # Per-token entropy: -Σ p log₂(p) = -Σ p log(p) / ln(2)
         per_token_entropy = -(probs * log_probs).sum(dim=-1) / _LN2  # (T,)
-        mean_entropy      = per_token_entropy.mean().item()
+        mean_entropy = per_token_entropy.mean().item()
 
     h_max = math.log2(n_experts) if n_experts > 1 else 0.0
     return float(max(0.0, min(mean_entropy, h_max)))
@@ -256,18 +257,20 @@ def normalised_entropy(h: float, n_experts: int) -> float:
 # §2.1  TrendDirection — direction of entropy change over the recent window
 # ------------------------------------------------------------------------------
 
+
 class TrendDirection:
     """Symbolic trend direction constants (not an Enum for easy string-ability)."""
 
-    STABLE:    str = "STABLE"     # |ΔH| < entropy_drop_warn threshold
+    STABLE: str = "STABLE"  # |ΔH| < entropy_drop_warn threshold
     IMPROVING: str = "IMPROVING"  # entropy is increasing (healthy recovery)
     DECLINING: str = "DECLINING"  # entropy is decreasing (collapse precursor) — WARN
-    UNKNOWN:   str = "UNKNOWN"    # fewer than 2 history points, no trend yet
+    UNKNOWN: str = "UNKNOWN"  # fewer than 2 history points, no trend yet
 
 
 # ------------------------------------------------------------------------------
 # §2.2  EntropyResult — per-layer entropy snapshot
 # ------------------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class EntropyResult:
@@ -305,17 +308,17 @@ class EntropyResult:
         True when no events were available (layer has never fired).
     """
 
-    layer_name:   str
-    n_experts:    int
+    layer_name: str
+    n_experts: int
     entropy_bits: float
     entropy_norm: float
-    h_max:        float
-    alert_level:  AlertLevel
-    trend:        str
-    trend_delta:  float
-    source:       str         # "logits" | "counts"
-    event_count:  int
-    is_empty:     bool
+    h_max: float
+    alert_level: AlertLevel
+    trend: str
+    trend_delta: float
+    source: str  # "logits" | "counts"
+    event_count: int
+    is_empty: bool
 
     # ------------------------------------------------------------------
     # Convenience accessors
@@ -339,17 +342,17 @@ class EntropyResult:
     def to_dict(self) -> dict:
         """JSON-serialisable dictionary representation."""
         return {
-            "layer_name":   self.layer_name,
-            "n_experts":    self.n_experts,
+            "layer_name": self.layer_name,
+            "n_experts": self.n_experts,
             "entropy_bits": round(self.entropy_bits, 6),
             "entropy_norm": round(self.entropy_norm, 6),
-            "h_max":        round(self.h_max, 6),
-            "alert_level":  self.alert_level.value,
-            "trend":        self.trend,
-            "trend_delta":  round(self.trend_delta, 6),
-            "source":       self.source,
-            "event_count":  self.event_count,
-            "is_empty":     self.is_empty,
+            "h_max": round(self.h_max, 6),
+            "alert_level": self.alert_level.value,
+            "trend": self.trend,
+            "trend_delta": round(self.trend_delta, 6),
+            "source": self.source,
+            "event_count": self.event_count,
+            "is_empty": self.is_empty,
         }
 
     def __str__(self) -> str:
@@ -367,6 +370,7 @@ class EntropyResult:
 # ------------------------------------------------------------------------------
 # §2.3  LayerEntropyReport — collection of EntropyResult for all layers
 # ------------------------------------------------------------------------------
+
 
 @dataclass
 class LayerEntropyReport:
@@ -389,11 +393,11 @@ class LayerEntropyReport:
         Number of layers with DECLINING entropy trend.
     """
 
-    results:      Dict[str, EntropyResult] = field(default_factory=dict)
-    global_alert: AlertLevel               = AlertLevel.INFO
-    n_warn:       int                      = 0
-    n_error:      int                      = 0
-    n_declining:  int                      = 0
+    results: Dict[str, EntropyResult] = field(default_factory=dict)
+    global_alert: AlertLevel = AlertLevel.INFO
+    n_warn: int = 0
+    n_error: int = 0
+    n_declining: int = 0
 
     # ------------------------------------------------------------------
     # Convenience accessors
@@ -425,25 +429,23 @@ class LayerEntropyReport:
             Fraction of H_max.  E.g. ``0.6`` means below 60 % of maximum entropy.
         """
         return [
-            r for r in self.results.values()
+            r
+            for r in self.results.values()
             if not r.is_empty and r.entropy_norm < threshold_norm
         ]
 
     def declining_layers(self) -> List[EntropyResult]:
         """Return all layers with a DECLINING entropy trend."""
-        return [
-            r for r in self.results.values()
-            if r.trend == TrendDirection.DECLINING
-        ]
+        return [r for r in self.results.values() if r.trend == TrendDirection.DECLINING]
 
     def to_dict(self) -> dict:
         """JSON-serialisable representation of the full report."""
         return {
             "global_alert": self.global_alert.value,
-            "n_warn":       self.n_warn,
-            "n_error":      self.n_error,
-            "n_declining":  self.n_declining,
-            "layers":       {name: r.to_dict() for name, r in self.results.items()},
+            "n_warn": self.n_warn,
+            "n_error": self.n_error,
+            "n_declining": self.n_declining,
+            "layers": {name: r.to_dict() for name, r in self.results.items()},
         }
 
     def __repr__(self) -> str:
@@ -461,6 +463,7 @@ class LayerEntropyReport:
 # =============================================================================
 # Section 3 — EntropyAnalyzer
 # =============================================================================
+
 
 class EntropyAnalyzer:
     """Stateful per-layer Shannon entropy analyser for MoE routing diagnostics.
@@ -559,8 +562,8 @@ class EntropyAnalyzer:
             return LayerEntropyReport()
 
         results: Dict[str, EntropyResult] = {}
-        n_warn    = 0
-        n_error   = 0
+        n_warn = 0
+        n_error = 0
         n_decline = 0
         worst_level = AlertLevel.INFO
 
@@ -570,10 +573,10 @@ class EntropyAnalyzer:
 
             # Aggregate counters
             if result.alert_level == AlertLevel.WARN:
-                n_warn    += 1
+                n_warn += 1
             elif result.alert_level == AlertLevel.ERROR:
-                n_error   += 1
-                n_warn    += 1  # ERROR is a superset of WARN for reporting
+                n_error += 1
+                n_warn += 1  # ERROR is a superset of WARN for reporting
 
             if result.trend == TrendDirection.DECLINING:
                 n_decline += 1
@@ -581,7 +584,9 @@ class EntropyAnalyzer:
             # Track worst level
             if result.alert_level == AlertLevel.ERROR:
                 worst_level = AlertLevel.ERROR
-            elif result.alert_level == AlertLevel.WARN and worst_level == AlertLevel.INFO:
+            elif (
+                result.alert_level == AlertLevel.WARN and worst_level == AlertLevel.INFO
+            ):
                 worst_level = AlertLevel.WARN
 
         report = LayerEntropyReport(
@@ -650,7 +655,7 @@ class EntropyAnalyzer:
             return self._empty_result(layer_name, stats.n_experts)
 
         # -- Step 1: compute absolute entropy ---------------------------------
-        h_max  = max_entropy(stats.n_experts)
+        h_max = max_entropy(stats.n_experts)
         source = "counts"
 
         if stats.has_raw_logits and stats.raw_logits_window:
@@ -726,7 +731,8 @@ class EntropyAnalyzer:
         (entropy_bits, source)
         """
         valid = [
-            t for t in logits_window
+            t
+            for t in logits_window
             if isinstance(t, torch.Tensor)
             and t.ndim == 2
             and t.shape[1] == n_experts
@@ -738,13 +744,14 @@ class EntropyAnalyzer:
             return 0.0, "counts"
 
         try:
-            pooled   = torch.cat(valid, dim=0)           # (total_tokens, n_experts)
-            h_bits   = compute_entropy_from_logits(pooled)
+            pooled = torch.cat(valid, dim=0)  # (total_tokens, n_experts)
+            h_bits = compute_entropy_from_logits(pooled)
             return h_bits, "logits"
         except Exception as exc:
             log.warning(
                 "[moewatch] EntropyAnalyzer: logit-based entropy computation "
-                "failed (%s). Falling back to count-based.", exc
+                "failed (%s). Falling back to count-based.",
+                exc,
             )
             return 0.0, "counts"
 
@@ -800,22 +807,26 @@ class EntropyAnalyzer:
             return TrendDirection.UNKNOWN, 0.0
 
         history_list = list(hist)
-        n            = len(history_list)
-        split        = max(1, min(self._TREND_SPLIT, n // 2))
+        n = len(history_list)
+        split = max(1, min(self._TREND_SPLIT, n // 2))
 
         recent_vals = history_list[-split:]
-        prior_vals  = history_list[-(split * 2):-split] if n >= split * 2 else history_list[:split]
+        prior_vals = (
+            history_list[-(split * 2) : -split]
+            if n >= split * 2
+            else history_list[:split]
+        )
 
         if not prior_vals:
             return TrendDirection.UNKNOWN, 0.0
 
         recent_mean = sum(recent_vals) / len(recent_vals)
-        prior_mean  = sum(prior_vals)  / len(prior_vals)
+        prior_mean = sum(prior_vals) / len(prior_vals)
 
         if prior_mean <= 0.0:
             return TrendDirection.UNKNOWN, 0.0
 
-        delta = (recent_mean - prior_mean) / prior_mean   # relative change
+        delta = (recent_mean - prior_mean) / prior_mean  # relative change
 
         if delta < -self.config.entropy_drop_warn:
             return TrendDirection.DECLINING, delta
@@ -830,30 +841,42 @@ class EntropyAnalyzer:
     def _log_alert(
         self,
         layer_name: str,
-        h_bits:     float,
-        h_norm:     float,
-        h_max:      float,
-        alert:      AlertLevel,
-        trend:      str,
+        h_bits: float,
+        h_norm: float,
+        h_max: float,
+        alert: AlertLevel,
+        trend: str,
     ) -> None:
         """Emit a structured log line for notable entropy conditions."""
         if alert == AlertLevel.ERROR:
             log.error(
                 "[moewatch] ENTROPY CRITICAL  %-50s  "
                 "H=%.3f / %.3f bits  (%.1f%% of max)  trend=%s",
-                layer_name, h_bits, h_max, h_norm * 100, trend,
+                layer_name,
+                h_bits,
+                h_max,
+                h_norm * 100,
+                trend,
             )
         elif alert == AlertLevel.WARN:
             log.warning(
                 "[moewatch] ENTROPY LOW       %-50s  "
                 "H=%.3f / %.3f bits  (%.1f%% of max)  trend=%s",
-                layer_name, h_bits, h_max, h_norm * 100, trend,
+                layer_name,
+                h_bits,
+                h_max,
+                h_norm * 100,
+                trend,
             )
         else:
             log.debug(
                 "[moewatch] entropy OK        %-50s  "
                 "H=%.3f / %.3f bits  (%.1f%% of max)  trend=%s",
-                layer_name, h_bits, h_max, h_norm * 100, trend,
+                layer_name,
+                h_bits,
+                h_max,
+                h_norm * 100,
+                trend,
             )
 
     # ==========================================================================
@@ -869,7 +892,7 @@ class EntropyAnalyzer:
             entropy_bits=0.0,
             entropy_norm=0.0,
             h_max=max_entropy(n_experts),
-            alert_level=AlertLevel.INFO,   # not an error — just no data yet
+            alert_level=AlertLevel.INFO,  # not an error — just no data yet
             trend=TrendDirection.UNKNOWN,
             trend_delta=0.0,
             source="none",

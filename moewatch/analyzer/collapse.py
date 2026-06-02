@@ -75,6 +75,7 @@ log = logging.getLogger(__name__)
 # Section 1 — Expert state classification
 # =============================================================================
 
+
 class ExpertState(str, Enum):
     """Health state for a single MoE expert.
 
@@ -93,8 +94,8 @@ class ExpertState(str, Enum):
     """
 
     HEALTHY = "HEALTHY"
-    COLD    = "COLD"
-    DEAD    = "DEAD"
+    COLD = "COLD"
+    DEAD = "DEAD"
     UNKNOWN = "UNKNOWN"
 
 
@@ -105,6 +106,7 @@ class ExpertState(str, Enum):
 # ------------------------------------------------------------------------------
 # §2.1  ExpertStatus — immutable snapshot for one expert in one layer
 # ------------------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class ExpertStatus:
@@ -135,12 +137,12 @@ class ExpertStatus:
         confirmed long-term collapse. ``0`` for HEALTHY or UNKNOWN experts.
     """
 
-    layer_name:             str
-    expert_idx:             int
-    state:                  ExpertState
-    alert_level:            AlertLevel
-    utilization:            float
-    token_count:            int
+    layer_name: str
+    expert_idx: int
+    state: ExpertState
+    alert_level: AlertLevel
+    utilization: float
+    token_count: int
     consecutive_cold_steps: int
 
     # ------------------------------------------------------------------
@@ -171,13 +173,13 @@ class ExpertStatus:
         """JSON-serialisable dictionary representation."""
         util = self.utilization
         return {
-            "layer_name":             self.layer_name,
-            "expert_idx":             self.expert_idx,
-            "state":                  self.state.value,
-            "alert_level":            self.alert_level.value,
-            "utilization":            None if (util != util) else round(util, 8),  # NaN check
-            "utilization_pct":        None if (util != util) else round(util * 100, 4),
-            "token_count":            self.token_count,
+            "layer_name": self.layer_name,
+            "expert_idx": self.expert_idx,
+            "state": self.state.value,
+            "alert_level": self.alert_level.value,
+            "utilization": None if (util != util) else round(util, 8),  # NaN check
+            "utilization_pct": None if (util != util) else round(util * 100, 4),
+            "token_count": self.token_count,
             "consecutive_cold_steps": self.consecutive_cold_steps,
         }
 
@@ -189,7 +191,8 @@ class ExpertStatus:
         )
         cold_str = (
             f"  (cold {self.consecutive_cold_steps} steps)"
-            if self.consecutive_cold_steps > 0 else ""
+            if self.consecutive_cold_steps > 0
+            else ""
         )
         return (
             f"Expert {self.expert_idx:>3d}  "
@@ -201,6 +204,7 @@ class ExpertStatus:
 # ------------------------------------------------------------------------------
 # §2.2  LayerCollapseReport — collapse report for one layer
 # ------------------------------------------------------------------------------
+
 
 @dataclass
 class LayerCollapseReport:
@@ -232,15 +236,15 @@ class LayerCollapseReport:
         True when no routing events have been collected yet.
     """
 
-    layer_name:           str
-    n_experts:            int
-    experts:              List[ExpertStatus] = field(default_factory=list)
-    n_dead:               int                = 0
-    n_cold:               int                = 0
-    n_healthy:            int                = 0
-    global_alert:         AlertLevel         = AlertLevel.INFO
-    load_imbalance_score: float              = float("nan")
-    is_empty:             bool               = True
+    layer_name: str
+    n_experts: int
+    experts: List[ExpertStatus] = field(default_factory=list)
+    n_dead: int = 0
+    n_cold: int = 0
+    n_healthy: int = 0
+    global_alert: AlertLevel = AlertLevel.INFO
+    load_imbalance_score: float = float("nan")
+    is_empty: bool = True
 
     # ------------------------------------------------------------------
     # Convenience accessors
@@ -283,15 +287,15 @@ class LayerCollapseReport:
         """JSON-serialisable representation of this layer's collapse report."""
         lim = self.load_imbalance_score
         return {
-            "layer_name":           self.layer_name,
-            "n_experts":            self.n_experts,
-            "n_dead":               self.n_dead,
-            "n_cold":               self.n_cold,
-            "n_healthy":            self.n_healthy,
-            "global_alert":         self.global_alert.value,
+            "layer_name": self.layer_name,
+            "n_experts": self.n_experts,
+            "n_dead": self.n_dead,
+            "n_cold": self.n_cold,
+            "n_healthy": self.n_healthy,
+            "global_alert": self.global_alert.value,
             "load_imbalance_score": None if (lim != lim) else round(lim, 4),
-            "is_empty":             self.is_empty,
-            "experts":              [e.to_dict() for e in self.experts],
+            "is_empty": self.is_empty,
+            "experts": [e.to_dict() for e in self.experts],
         }
 
     def __repr__(self) -> str:
@@ -309,6 +313,7 @@ class LayerCollapseReport:
 # =============================================================================
 # Section 3 — CollapseDetector
 # =============================================================================
+
 
 class CollapseDetector:
     """Stateful expert collapse detector for MoE router diagnostics.
@@ -401,10 +406,10 @@ class CollapseDetector:
         total_cold = 0
 
         for layer_name, stats in all_stats.items():
-            report          = self._detect_layer(layer_name, stats)
+            report = self._detect_layer(layer_name, stats)
             reports[layer_name] = report
-            total_dead     += report.n_dead
-            total_cold     += report.n_cold
+            total_dead += report.n_dead
+            total_cold += report.n_cold
 
         if total_dead > 0:
             log.error(
@@ -493,9 +498,9 @@ class CollapseDetector:
                 load_imbalance_score=float("nan"),
             )
 
-        n_experts     = stats.n_experts
-        utilization   = stats.utilization    # (n_experts,) float32 CPU
-        token_counts  = stats.expert_counts  # (n_experts,) int64 CPU
+        n_experts = stats.n_experts
+        utilization = stats.utilization  # (n_experts,) float32 CPU
+        token_counts = stats.expert_counts  # (n_experts,) int64 CPU
 
         # -- Ensure cold counter dict exists for this layer ------------------
         if layer_name not in self._cold_counters:
@@ -508,7 +513,9 @@ class CollapseDetector:
             log.warning(
                 "[moewatch] CollapseDetector(%s): utilization shape %s "
                 "does not match n_experts=%d. Skipping.",
-                layer_name, list(utilization.shape), n_experts,
+                layer_name,
+                list(utilization.shape),
+                n_experts,
             )
             return LayerCollapseReport(
                 layer_name=layer_name,
@@ -521,15 +528,15 @@ class CollapseDetector:
 
         # -- Classify each expert --------------------------------------------
         expert_statuses: List[ExpertStatus] = []
-        n_dead    = 0
-        n_cold    = 0
+        n_dead = 0
+        n_cold = 0
         n_healthy = 0
 
-        util_list   = utilization.tolist()
+        util_list = utilization.tolist()
         counts_list = token_counts.tolist()
 
         for idx in range(n_experts):
-            util        = util_list[idx]
+            util = util_list[idx]
             token_count = int(counts_list[idx])
 
             state, alert, new_counter = self._classify_expert(
@@ -592,9 +599,9 @@ class CollapseDetector:
 
     def _classify_expert(
         self,
-        layer_name:        str,
-        expert_idx:        int,
-        utilization:       float,
+        layer_name: str,
+        expert_idx: int,
+        utilization: float,
         current_cold_steps: int,
     ) -> Tuple[ExpertState, AlertLevel, int]:
         """Classify a single expert and update its cold-step counter.
@@ -623,7 +630,7 @@ class CollapseDetector:
         """
         dead_thresh = self.config.dead_threshold
         cold_thresh = self.config.cold_threshold
-        cold_limit  = self.config.cold_steps_limit
+        cold_limit = self.config.cold_steps_limit
 
         # -- Rule 1: confirmed dead by utilisation threshold ------------------
         if utilization <= dead_thresh:
@@ -631,8 +638,10 @@ class CollapseDetector:
             log.debug(
                 "[moewatch] CollapseDetector(%s): Expert %d DEAD "
                 "(util=%.4f%% ≤ dead_threshold=%.4f%%).",
-                layer_name, expert_idx,
-                utilization * 100, dead_thresh * 100,
+                layer_name,
+                expert_idx,
+                utilization * 100,
+                dead_thresh * 100,
             )
             return ExpertState.DEAD, AlertLevel.ERROR, new_counter
 
@@ -645,16 +654,21 @@ class CollapseDetector:
                 log.debug(
                     "[moewatch] CollapseDetector(%s): Expert %d promoted COLD→DEAD "
                     "(cold for %d steps ≥ cold_steps_limit=%d).",
-                    layer_name, expert_idx,
-                    new_counter, cold_limit,
+                    layer_name,
+                    expert_idx,
+                    new_counter,
+                    cold_limit,
                 )
                 return ExpertState.DEAD, AlertLevel.ERROR, new_counter
 
             log.debug(
                 "[moewatch] CollapseDetector(%s): Expert %d COLD "
                 "(util=%.4f%%, cold_steps=%d/%d).",
-                layer_name, expert_idx,
-                utilization * 100, new_counter, cold_limit,
+                layer_name,
+                expert_idx,
+                utilization * 100,
+                new_counter,
+                cold_limit,
             )
             return ExpertState.COLD, AlertLevel.WARN, new_counter
 
@@ -663,7 +677,9 @@ class CollapseDetector:
             log.debug(
                 "[moewatch] CollapseDetector(%s): Expert %d recovered to HEALTHY "
                 "(was cold for %d steps).",
-                layer_name, expert_idx, current_cold_steps,
+                layer_name,
+                expert_idx,
+                current_cold_steps,
             )
         return ExpertState.HEALTHY, AlertLevel.INFO, 0
 
@@ -725,7 +741,7 @@ class CollapseDetector:
 
         mean_util = util.mean().item()
         max_val, argmax = util.max(dim=0)
-        max_util  = max_val.item()
+        max_util = max_val.item()
         argmax_idx = int(argmax.item())
 
         if mean_util <= 0.0:
@@ -740,10 +756,10 @@ class CollapseDetector:
 
     def _log_layer_report(
         self,
-        layer_name:           str,
-        n_experts:            int,
-        n_dead:               int,
-        n_cold:               int,
+        layer_name: str,
+        n_experts: int,
+        n_dead: int,
+        n_cold: int,
         load_imbalance_score: float,
     ) -> None:
         """Emit a single structured log line per layer."""
@@ -757,19 +773,31 @@ class CollapseDetector:
             log.error(
                 "[moewatch] COLLAPSE DETECTED  %-50s  "
                 "dead=%d/%d  cold=%d  imbalance=%s",
-                layer_name, n_dead, n_experts, n_cold, lim_str,
+                layer_name,
+                n_dead,
+                n_experts,
+                n_cold,
+                lim_str,
             )
         elif n_cold > 0:
             log.warning(
                 "[moewatch] COLLAPSE WARNING   %-50s  "
                 "dead=%d/%d  cold=%d  imbalance=%s",
-                layer_name, n_dead, n_experts, n_cold, lim_str,
+                layer_name,
+                n_dead,
+                n_experts,
+                n_cold,
+                lim_str,
             )
         else:
             log.debug(
                 "[moewatch] experts healthy    %-50s  "
                 "dead=%d/%d  cold=%d  imbalance=%s",
-                layer_name, n_dead, n_experts, n_cold, lim_str,
+                layer_name,
+                n_dead,
+                n_experts,
+                n_cold,
+                lim_str,
             )
 
     # ==========================================================================
@@ -778,9 +806,7 @@ class CollapseDetector:
 
     def __repr__(self) -> str:
         tracked = len(self._cold_counters)
-        total_tracked = sum(
-            len(v) for v in self._cold_counters.values()
-        )
+        total_tracked = sum(len(v) for v in self._cold_counters.values())
         return (
             f"CollapseDetector("
             f"dead_threshold={self.config.dead_threshold}, "

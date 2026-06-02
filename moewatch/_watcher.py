@@ -66,6 +66,7 @@ log = logging.getLogger(__name__)
 # Alert data structure
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class Alert:
     """A single diagnostic alert emitted during training.
@@ -81,23 +82,23 @@ class Alert:
     timestamp  : Wall-clock time (seconds since epoch) of the alert.
     """
 
-    step:        int
-    level:       AlertLevel
-    layer_name:  str
-    message:     str
-    metric:      Optional[float]        = None
-    suggestion:  Optional[str]          = None
-    timestamp:   float                  = field(default_factory=time.time)
+    step: int
+    level: AlertLevel
+    layer_name: str
+    message: str
+    metric: Optional[float] = None
+    suggestion: Optional[str] = None
+    timestamp: float = field(default_factory=time.time)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
-            "step":        self.step,
-            "level":       self.level.value,
-            "layer_name":  self.layer_name,
-            "message":     self.message,
-            "metric":      self.metric,
-            "suggestion":  self.suggestion,
-            "timestamp":   self.timestamp,
+            "step": self.step,
+            "level": self.level.value,
+            "layer_name": self.layer_name,
+            "message": self.message,
+            "metric": self.metric,
+            "suggestion": self.suggestion,
+            "timestamp": self.timestamp,
         }
 
     def to_json_line(self) -> str:
@@ -108,22 +109,22 @@ class Alert:
 # ANSI colour helpers (respect NO_COLOR env var and WatchConfig.no_color)
 # ---------------------------------------------------------------------------
 
-_ANSI_RESET  = "\033[0m"
-_ANSI_BOLD   = "\033[1m"
-_ANSI_GREEN  = "\033[32m"
+_ANSI_RESET = "\033[0m"
+_ANSI_BOLD = "\033[1m"
+_ANSI_GREEN = "\033[32m"
 _ANSI_YELLOW = "\033[33m"
-_ANSI_RED    = "\033[31m"
-_ANSI_CYAN   = "\033[36m"
+_ANSI_RED = "\033[31m"
+_ANSI_CYAN = "\033[36m"
 
 _LEVEL_COLOUR = {
-    AlertLevel.INFO:  _ANSI_GREEN,
-    AlertLevel.WARN:  _ANSI_YELLOW,
+    AlertLevel.INFO: _ANSI_GREEN,
+    AlertLevel.WARN: _ANSI_YELLOW,
     AlertLevel.ERROR: _ANSI_RED,
 }
 
 _LEVEL_ICON = {
-    AlertLevel.INFO:  "✅",
-    AlertLevel.WARN:  "⚠ ",
+    AlertLevel.INFO: "✅",
+    AlertLevel.WARN: "⚠ ",
     AlertLevel.ERROR: "❌",
 }
 
@@ -164,6 +165,7 @@ _SUGGESTIONS: Dict[str, str] = {
 # ---------------------------------------------------------------------------
 # MoEWatch — main class
 # ---------------------------------------------------------------------------
+
 
 class MoEWatch:
     """Live training-time MoE diagnostic monitor.
@@ -213,24 +215,24 @@ class MoEWatch:
                 f"got {type(model).__name__}."
             )
 
-        self.model  = model
+        self.model = model
         self.config = config if config is not None else WatchConfig()
 
         # Internal state — always starts detached
-        self._hook_manager:   Optional[Any] = None   # HookManager (lazy)
-        self._collector:      Optional[Any] = None   # StatCollector (lazy)
-        self._attached:       bool          = False
-        self._global_step:    int           = 0
-        self._alert_log:      List[Alert]   = []
-        self._start_time:     Optional[float] = None
+        self._hook_manager: Optional[Any] = None  # HookManager (lazy)
+        self._collector: Optional[Any] = None  # StatCollector (lazy)
+        self._attached: bool = False
+        self._global_step: int = 0
+        self._alert_log: List[Alert] = []
+        self._start_time: Optional[float] = None
 
         # Sub-module references resolved lazily to keep import fast
-        self._HookManager:     Optional[Any] = None
-        self._detect_routers:  Optional[Any] = None
-        self._StatCollector:   Optional[Any] = None
+        self._HookManager: Optional[Any] = None
+        self._detect_routers: Optional[Any] = None
+        self._StatCollector: Optional[Any] = None
         self._EntropyAnalyzer: Optional[Any] = None
-        self._CollapseDetector:Optional[Any] = None
-        self._entropy_analyzer:  Optional[Any] = None
+        self._CollapseDetector: Optional[Any] = None
+        self._entropy_analyzer: Optional[Any] = None
         self._collapse_detector: Optional[Any] = None
 
         log.debug("[moewatch] MoEWatch created. Model: %s", type(model).__name__)
@@ -242,17 +244,17 @@ class MoEWatch:
     def _bootstrap(self) -> None:
         """Resolve all lazy imports and wire up the hook infrastructure."""
 
-        from .hooks.manager    import HookManager
-        from .hooks.detection  import detect_router_modules
+        from .hooks.manager import HookManager
+        from .hooks.detection import detect_router_modules
         from .collector.stat_collector import StatCollector
-        from .analyzer.entropy  import EntropyAnalyzer
+        from .analyzer.entropy import EntropyAnalyzer
         from .analyzer.collapse import CollapseDetector
 
-        self._HookManager       = HookManager
-        self._detect_routers    = detect_router_modules
-        self._StatCollector     = StatCollector
-        self._EntropyAnalyzer   = EntropyAnalyzer
-        self._CollapseDetector  = CollapseDetector
+        self._HookManager = HookManager
+        self._detect_routers = detect_router_modules
+        self._StatCollector = StatCollector
+        self._EntropyAnalyzer = EntropyAnalyzer
+        self._CollapseDetector = CollapseDetector
 
     # -----------------------------------------------------------------------
     # Attach / detach lifecycle
@@ -302,7 +304,7 @@ class MoEWatch:
             config=self.config,
         )
         self._hook_manager.attach()
-        self._entropy_analyzer  = self._EntropyAnalyzer(config=self.config)  # type: ignore[misc]
+        self._entropy_analyzer = self._EntropyAnalyzer(config=self.config)  # type: ignore[misc]
         self._collapse_detector = self._CollapseDetector(config=self.config)  # type: ignore[misc]
         self._attached = True
 
@@ -325,24 +327,17 @@ class MoEWatch:
         if self._hook_manager is not None:
             try:
                 self._hook_manager.detach()
-            except Exception as exc:                      # pragma: no cover
-                log.warning(
-                    "[moewatch] Non-fatal error during hook detach: %s", exc
-                )
+            except Exception as exc:  # pragma: no cover
+                log.warning("[moewatch] Non-fatal error during hook detach: %s", exc)
             finally:
                 self._hook_manager = None
 
-        self._attached    = False
-        self._collector   = None
+        self._attached = False
+        self._collector = None
 
-        elapsed = (
-            time.perf_counter() - self._start_time
-            if self._start_time
-            else 0.0
-        )
+        elapsed = time.perf_counter() - self._start_time if self._start_time else 0.0
         log.info(
-            "[moewatch] Monitoring stopped after %.1f s. "
-            "%d alert(s) emitted.",
+            "[moewatch] Monitoring stopped after %.1f s. " "%d alert(s) emitted.",
             elapsed,
             len(self._alert_log),
         )
@@ -385,9 +380,7 @@ class MoEWatch:
         callback = MoEWatchCallback(watcher=self)
         trainer.add_callback(callback)
 
-        log.info(
-            "[moewatch] MoEWatchCallback registered with HuggingFace Trainer."
-        )
+        log.info("[moewatch] MoEWatchCallback registered with HuggingFace Trainer.")
         return self
 
     def detach(self) -> "MoEWatch":
@@ -427,7 +420,7 @@ class MoEWatch:
 
         try:
             layer_stats = self._collector.get_all_stats()
-        except Exception as exc:                          # pragma: no cover
+        except Exception as exc:  # pragma: no cover
             log.warning(
                 "[moewatch] Failed to retrieve stats at step %d: %s",
                 global_step,
@@ -440,7 +433,7 @@ class MoEWatch:
             return []
 
         # -- Entropy analysis -----------------------------------------------
-        entropy_report = self._entropy_analyzer.analyze(layer_stats)   # type: ignore[union-attr]
+        entropy_report = self._entropy_analyzer.analyze(layer_stats)  # type: ignore[union-attr]
 
         for layer_name, result in entropy_report.results.items():
             if result.alert_level == AlertLevel.ERROR:
@@ -512,9 +505,7 @@ class MoEWatch:
                     step=global_step,
                     level=AlertLevel.ERROR,
                     layer_name=layer_name,
-                    message=(
-                        f"Load imbalance CRITICAL: max/mean = {imbalance:.1f}×"
-                    ),
+                    message=(f"Load imbalance CRITICAL: max/mean = {imbalance:.1f}×"),
                     metric=imbalance,
                     suggestion=_SUGGESTIONS["load_imbalance"],
                 )
@@ -524,9 +515,7 @@ class MoEWatch:
                     step=global_step,
                     level=AlertLevel.WARN,
                     layer_name=layer_name,
-                    message=(
-                        f"Load imbalance: max/mean = {imbalance:.1f}×"
-                    ),
+                    message=(f"Load imbalance: max/mean = {imbalance:.1f}×"),
                     metric=imbalance,
                 )
                 step_alerts.append(alert)
@@ -562,7 +551,7 @@ class MoEWatch:
                 print(alert.to_json_line(), flush=True)
 
             else:  # CONSOLE
-                icon   = _LEVEL_ICON[alert.level]
+                icon = _LEVEL_ICON[alert.level]
                 colour = _LEVEL_COLOUR[alert.level]
                 no_col = self.config.no_color
 
@@ -585,7 +574,9 @@ class MoEWatch:
                 )
 
                 if alert.suggestion and alert.level == AlertLevel.ERROR:
-                    suggestion_prefix = _colour("         💡 Suggestion:", _ANSI_BOLD, no_color=no_col)
+                    suggestion_prefix = _colour(
+                        "         💡 Suggestion:", _ANSI_BOLD, no_color=no_col
+                    )
                     print(
                         f"{suggestion_prefix} {alert.suggestion}",
                         file=sys.stdout,
@@ -621,7 +612,7 @@ class MoEWatch:
     def summary(self) -> str:
         """Return a brief text summary of monitoring results."""
         errors = [a for a in self._alert_log if a.level == AlertLevel.ERROR]
-        warns  = [a for a in self._alert_log if a.level == AlertLevel.WARN]
+        warns = [a for a in self._alert_log if a.level == AlertLevel.WARN]
         return (
             f"moewatch summary — {len(self._alert_log)} total alert(s): "
             f"{len(errors)} ERROR, {len(warns)} WARN, "
@@ -659,16 +650,22 @@ class MoEWatch:
             return
 
         _LINE = "─" * 66
-        nc    = self.config.no_color
+        nc = self.config.no_color
 
         print()
         print(f"  ╔{_LINE}╗")
-        print(f"  ║{_colour('moewatch · Live Training Monitor', _ANSI_BOLD, no_color=nc):^66}║")
+        print(
+            f"  ║{_colour('moewatch · Live Training Monitor', _ANSI_BOLD, no_color=nc):^66}║"
+        )
         print(f"  ╠{_LINE}╣")
         print(f"  ║  {'Router modules attached':.<40} {len(router_names):>8}        ║")
         print(f"  ║  {'Log every N steps':.<40} {self.config.log_every:>8}        ║")
-        print(f"  ║  {'Sample every N steps':.<40} {self.config.sample_every:>8}        ║")
-        print(f"  ║  {'Dead threshold':.<40} {self.config.dead_threshold:>7.3%}        ║")
+        print(
+            f"  ║  {'Sample every N steps':.<40} {self.config.sample_every:>8}        ║"
+        )
+        print(
+            f"  ║  {'Dead threshold':.<40} {self.config.dead_threshold:>7.3%}        ║"
+        )
         print(f"  ║  {'Alert output mode':.<40} {self.config.output.value:>8}        ║")
         print(f"  ╠{_LINE}╣")
         for name in router_names[:5]:  # show first 5
@@ -676,7 +673,9 @@ class MoEWatch:
             print(f"  ║  ↳ {truncated:<62}║")
         if len(router_names) > 5:
             remaining = len(router_names) - 5
-            print(f"  ║  ↳ ... and {remaining} more layer(s){' ' * (52 - len(str(remaining)))}║")
+            print(
+                f"  ║  ↳ ... and {remaining} more layer(s){' ' * (52 - len(str(remaining)))}║"
+            )
         print(f"  ╚{_LINE}╝")
         print()
 
@@ -687,10 +686,12 @@ class MoEWatch:
 
 try:
     from transformers import TrainerCallback as _TrainerCallbackBase
+
     _HF_AVAILABLE = True
 except ImportError:
     _TrainerCallbackBase = object  # type: ignore[misc, assignment]
     _HF_AVAILABLE = False
+
 
 class MoEWatchCallback(_TrainerCallbackBase):
     """HuggingFace ``TrainerCallback`` that ticks ``MoEWatch.step()`` during training.

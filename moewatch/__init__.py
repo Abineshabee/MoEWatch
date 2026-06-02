@@ -25,13 +25,13 @@ import logging
 import os
 import sys
 
-from .config import (           # always fast — pure stdlib dataclass
+from .config import (  # always fast — pure stdlib dataclass
     WatchConfig,
     OutputMode,
     AlertLevel,
 )
 
-from ._audit import audit       # fast import; torch/sub-module loads on call
+from ._audit import audit  # fast import; torch/sub-module loads on call
 
 from ._watcher import (
     MoEWatch,
@@ -39,15 +39,14 @@ from ._watcher import (
     Alert,
 )
 
-
 # ---------------------------------------------------------------------------
 # Version
 # ---------------------------------------------------------------------------
 
-__version__  = "0.1.0"
-__author__   = "Abinesh"
-__email__    = ""                            # fill in before PyPI publish
-__license__  = "Apache 2.0"
+__version__ = "0.1.0"
+__author__ = "Abinesh"
+__email__ = ""  # fill in before PyPI publish
+__license__ = "Apache 2.0"
 __homepage__ = "https://github.com/Abineshabee/moewatch"
 
 # ---------------------------------------------------------------------------
@@ -106,16 +105,16 @@ _NO_COLOR_ENV: bool = "NO_COLOR" in os.environ
 
 __all__ = [
     # -- Primary API --------------------------------------------------------
-    "audit",            # offline diagnostic: audit(model, dataloader, steps)
-    "MoEWatch",         # live training monitor: MoEWatch(model, config=...)
+    "audit",  # offline diagnostic: audit(model, dataloader, steps)
+    "MoEWatch",  # live training monitor: MoEWatch(model, config=...)
     # -- Configuration ------------------------------------------------------
-    "WatchConfig",      # all thresholds and settings
-    "OutputMode",       # CONSOLE | JSON | SILENT
-    "AlertLevel",       # INFO | WARN | ERROR
+    "WatchConfig",  # all thresholds and settings
+    "OutputMode",  # CONSOLE | JSON | SILENT
+    "AlertLevel",  # INFO | WARN | ERROR
     # -- HuggingFace integration --------------------------------------------
-    "MoEWatchCallback", # TrainerCallback injected by MoEWatch.attach(trainer)
+    "MoEWatchCallback",  # TrainerCallback injected by MoEWatch.attach(trainer)
     # -- Alert data ---------------------------------------------------------
-    "Alert",            # single diagnostic event; returned by MoEWatch.step()
+    "Alert",  # single diagnostic event; returned by MoEWatch.step()
     # -- Metadata -----------------------------------------------------------
     "__version__",
 ]
@@ -124,6 +123,7 @@ __all__ = [
 # Convenience: print version when run as a script
 #   python -m moewatch  →  "moewatch 0.1.0"
 # ---------------------------------------------------------------------------
+
 
 def _cli_version() -> None:
     """Print the installed moewatch version and exit."""

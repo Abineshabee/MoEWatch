@@ -62,6 +62,7 @@ log = logging.getLogger(__name__)
 # Section 1 — Overall health classification
 # =============================================================================
 
+
 class OverallHealth(str, Enum):
     """Top-level routing health classification for the entire model.
 
@@ -84,15 +85,16 @@ class OverallHealth(str, Enum):
         Check that the dataloader and model are correctly configured.
     """
 
-    HEALTHY   = "HEALTHY"
+    HEALTHY = "HEALTHY"
     DEGRADING = "DEGRADING"
-    CRITICAL  = "CRITICAL"
-    UNKNOWN   = "UNKNOWN"
+    CRITICAL = "CRITICAL"
+    UNKNOWN = "UNKNOWN"
 
 
 # =============================================================================
 # Section 2 — DeadExpertEntry (flat, user-facing summary record)
 # =============================================================================
+
 
 @dataclass(frozen=True)
 class DeadExpertEntry:
@@ -120,13 +122,13 @@ class DeadExpertEntry:
         Useful for correlating with model architecture depth.
     """
 
-    layer_name:             str
-    expert_idx:             int
-    state:                  ExpertState
-    utilization:            float
-    utilization_pct:        float
+    layer_name: str
+    expert_idx: int
+    state: ExpertState
+    utilization: float
+    utilization_pct: float
     consecutive_cold_steps: int
-    layer_idx:              int
+    layer_idx: int
 
     @property
     def is_dead(self) -> bool:
@@ -138,12 +140,12 @@ class DeadExpertEntry:
 
     def to_dict(self) -> dict:
         return {
-            "layer_name":             self.layer_name,
-            "layer_idx":              self.layer_idx,
-            "expert_idx":             self.expert_idx,
-            "state":                  self.state.value,
-            "utilization":            round(self.utilization, 8),
-            "utilization_pct":        round(self.utilization_pct, 4),
+            "layer_name": self.layer_name,
+            "layer_idx": self.layer_idx,
+            "expert_idx": self.expert_idx,
+            "state": self.state.value,
+            "utilization": round(self.utilization, 8),
+            "utilization_pct": round(self.utilization_pct, 4),
             "consecutive_cold_steps": self.consecutive_cold_steps,
         }
 
@@ -158,6 +160,7 @@ class DeadExpertEntry:
 # =============================================================================
 # Section 3 — UtilizationSummary (per-layer token-distribution snapshot)
 # =============================================================================
+
 
 @dataclass(frozen=True)
 class UtilizationSummary:
@@ -196,42 +199,43 @@ class UtilizationSummary:
         (first_step, last_step) of the contributing events.
     """
 
-    layer_name:           str
-    layer_idx:            int
-    n_experts:            int
-    utilization:          List[float]
-    utilization_pct:      List[float]
-    token_counts:         List[int]
-    total_tokens:         int
-    max_util:             float
-    min_util:             float
-    mean_util:            float
+    layer_name: str
+    layer_idx: int
+    n_experts: int
+    utilization: List[float]
+    utilization_pct: List[float]
+    token_counts: List[int]
+    total_tokens: int
+    max_util: float
+    min_util: float
+    mean_util: float
     load_imbalance_score: float
-    event_count:          int
-    step_range:           Tuple[int, int]
+    event_count: int
+    step_range: Tuple[int, int]
 
     def to_dict(self) -> dict:
         lim = self.load_imbalance_score
         return {
-            "layer_name":           self.layer_name,
-            "layer_idx":            self.layer_idx,
-            "n_experts":            self.n_experts,
-            "utilization":          [round(u, 8) for u in self.utilization],
-            "utilization_pct":      [round(u, 4) for u in self.utilization_pct],
-            "token_counts":         self.token_counts,
-            "total_tokens":         self.total_tokens,
-            "max_util":             round(self.max_util, 8),
-            "min_util":             round(self.min_util, 8),
-            "mean_util":            round(self.mean_util, 8),
+            "layer_name": self.layer_name,
+            "layer_idx": self.layer_idx,
+            "n_experts": self.n_experts,
+            "utilization": [round(u, 8) for u in self.utilization],
+            "utilization_pct": [round(u, 4) for u in self.utilization_pct],
+            "token_counts": self.token_counts,
+            "total_tokens": self.total_tokens,
+            "max_util": round(self.max_util, 8),
+            "min_util": round(self.min_util, 8),
+            "mean_util": round(self.mean_util, 8),
             "load_imbalance_score": None if math.isnan(lim) else round(lim, 4),
-            "event_count":          self.event_count,
-            "step_range":           list(self.step_range),
+            "event_count": self.event_count,
+            "step_range": list(self.step_range),
         }
 
 
 # =============================================================================
 # Section 4 — AuditReport
 # =============================================================================
+
 
 class AuditReport:
     """Structured diagnostic result object returned by :func:`~moewatch.audit`.
@@ -288,37 +292,37 @@ class AuditReport:
     def __init__(
         self,
         *,
-        layer_stats:         Dict[str, LayerStats],
-        entropy_results:     LayerEntropyReport,
-        collapse_results:    Dict[str, LayerCollapseReport],
-        config:              WatchConfig,
-        completed_steps:     int,
-        elapsed_seconds:     float,
-        device:              str,
+        layer_stats: Dict[str, LayerStats],
+        entropy_results: LayerEntropyReport,
+        collapse_results: Dict[str, LayerCollapseReport],
+        config: WatchConfig,
+        completed_steps: int,
+        elapsed_seconds: float,
+        device: str,
         router_module_names: List[str],
     ) -> None:
 
         # ── Raw results from the analyzer layer ──────────────────────────────
-        self._layer_stats:      Dict[str, LayerStats]         = layer_stats
-        self._entropy_results:  LayerEntropyReport            = entropy_results
+        self._layer_stats: Dict[str, LayerStats] = layer_stats
+        self._entropy_results: LayerEntropyReport = entropy_results
         self._collapse_results: Dict[str, LayerCollapseReport] = collapse_results
 
         # ── Configuration snapshot ────────────────────────────────────────────
         self.config: WatchConfig = config
 
         # ── Run metadata ──────────────────────────────────────────────────────
-        self.completed_steps:     int   = completed_steps
-        self.elapsed_seconds:     float = elapsed_seconds
-        self.device:              str   = device
+        self.completed_steps: int = completed_steps
+        self.elapsed_seconds: float = elapsed_seconds
+        self.device: str = device
         self.router_module_names: List[str] = list(router_module_names)
-        self.created_at:          float = time.time()   # wall-clock creation timestamp
+        self.created_at: float = time.time()  # wall-clock creation timestamp
 
         # ── Derived top-level health (computed once, cached) ─────────────────
         self._overall_health: OverallHealth = self._compute_overall_health()
 
         # ── Pre-computed flat collections (cached on first access) ────────────
-        self.__dead_experts_cache:  Optional[List[DeadExpertEntry]]         = None
-        self.__utilization_cache:   Optional[Dict[str, UtilizationSummary]] = None
+        self.__dead_experts_cache: Optional[List[DeadExpertEntry]] = None
+        self.__utilization_cache: Optional[Dict[str, UtilizationSummary]] = None
 
         log.debug(
             "[moewatch] AuditReport constructed: %d layers, %d steps, health=%s.",
@@ -346,9 +350,7 @@ class AuditReport:
         Priority (worst wins):
           CRITICAL > DEGRADING > HEALTHY > UNKNOWN
         """
-        has_any_data = any(
-            not stats.is_empty for stats in self._layer_stats.values()
-        )
+        has_any_data = any(not stats.is_empty for stats in self._layer_stats.values())
         if not has_any_data:
             return OverallHealth.UNKNOWN
 
@@ -482,16 +484,17 @@ class AuditReport:
         """
         recs: List[str] = []
 
-        dead_list  = self.dead_experts(include_cold=False)
-        cold_list  = self.dead_experts(include_cold=True)
-        cold_only  = [e for e in cold_list if e.is_cold]
+        dead_list = self.dead_experts(include_cold=False)
+        cold_list = self.dead_experts(include_cold=True)
+        cold_only = [e for e in cold_list if e.is_cold]
         low_entropy_layers = [
-            r for r in self._entropy_results.results.values()
-            if r.alert_level in (AlertLevel.WARN, AlertLevel.ERROR)
-            and not r.is_empty
+            r
+            for r in self._entropy_results.results.values()
+            if r.alert_level in (AlertLevel.WARN, AlertLevel.ERROR) and not r.is_empty
         ]
         declining_layers = [
-            r for r in self._entropy_results.results.values()
+            r
+            for r in self._entropy_results.results.values()
             if r.is_declining and not r.is_empty
         ]
 
@@ -511,10 +514,10 @@ class AuditReport:
 
         # -- Low entropy recommendations -----------------------------------
         critical_entropy = [r for r in low_entropy_layers if r.is_critical]
-        warn_entropy     = [r for r in low_entropy_layers if not r.is_critical]
+        warn_entropy = [r for r in low_entropy_layers if not r.is_critical]
 
         if critical_entropy:
-            worst  = min(critical_entropy, key=lambda r: r.entropy_norm)
+            worst = min(critical_entropy, key=lambda r: r.entropy_norm)
             recs.append(
                 f"[CRITICAL] Routing entropy in ERROR zone: "
                 f"{worst.entropy_norm:.1%} of max on layer '{worst.layer_name}'. "
@@ -623,7 +626,11 @@ class AuditReport:
             lines.append("   (no data collected)")
         else:
             for i, (name, result) in enumerate(entropy_results.items()):
-                tag = "[ERROR]" if result.is_critical else ("[WARN]" if not result.is_healthy else "[OK]  ")
+                tag = (
+                    "[ERROR]"
+                    if result.is_critical
+                    else ("[WARN]" if not result.is_healthy else "[OK]  ")
+                )
                 short_name = _shorten_layer_name(name, max_len=42)
                 if result.is_empty:
                     lines.append(f"   {tag}  {short_name:<42s}  NO DATA")
@@ -637,7 +644,7 @@ class AuditReport:
         lines.append("")
 
         # -- Collapse summary -----------------------------------------------
-        dead_all  = self.dead_experts(include_cold=True)
+        dead_all = self.dead_experts(include_cold=True)
         dead_only = [e for e in dead_all if e.is_dead]
         cold_only = [e for e in dead_all if e.is_cold]
 
@@ -774,10 +781,7 @@ class AuditReport:
     @property
     def has_warnings(self) -> bool:
         """True when at least one expert is COLD or one layer's entropy is in WARN."""
-        return (
-            self.n_cold > 0
-            or self._entropy_results.n_warn > 0
-        )
+        return self.n_cold > 0 or self._entropy_results.n_warn > 0
 
     # =========================================================================
     # §4.6  Serialisation
@@ -830,18 +834,18 @@ class AuditReport:
 
         # -- Run metadata ---------------------------------------------------
         meta: Dict[str, Any] = {
-            "moewatch_version":    "0.1.0",
-            "overall_health":      self._overall_health.value,
-            "completed_steps":     self.completed_steps,
-            "elapsed_seconds":     round(self.elapsed_seconds, 3),
-            "device":              self.device,
-            "created_at":          self.created_at,
+            "moewatch_version": "0.1.0",
+            "overall_health": self._overall_health.value,
+            "completed_steps": self.completed_steps,
+            "elapsed_seconds": round(self.elapsed_seconds, 3),
+            "device": self.device,
+            "created_at": self.created_at,
             "router_module_names": self.router_module_names,
-            "n_layers":            self.n_layers,
-            "n_experts_total":     self.n_experts_total,
-            "n_dead":              self.n_dead,
-            "n_cold":              self.n_cold,
-            "n_healthy":           self.n_healthy,
+            "n_layers": self.n_layers,
+            "n_experts_total": self.n_experts_total,
+            "n_dead": self.n_dead,
+            "n_cold": self.n_cold,
+            "n_healthy": self.n_healthy,
         }
 
         # -- Config snapshot ------------------------------------------------
@@ -852,8 +856,7 @@ class AuditReport:
 
         # -- Collapse results -----------------------------------------------
         collapse_dict = {
-            name: report.to_dict()
-            for name, report in self._collapse_results.items()
+            name: report.to_dict() for name, report in self._collapse_results.items()
         }
 
         # -- Flat dead experts list -----------------------------------------
@@ -863,20 +866,19 @@ class AuditReport:
 
         # -- Utilization summaries ------------------------------------------
         util_dict = {
-            name: summary.to_dict()
-            for name, summary in self.utilization().items()
+            name: summary.to_dict() for name, summary in self.utilization().items()
         }
 
         # -- Recommendations ------------------------------------------------
         recs = self.recommendations()
 
         return {
-            "metadata":       meta,
-            "config":         config_dict,
-            "entropy":        entropy_dict,
-            "collapse":       collapse_dict,
-            "dead_experts":   dead_experts_list,
-            "utilization":    util_dict,
+            "metadata": meta,
+            "config": config_dict,
+            "entropy": entropy_dict,
+            "collapse": collapse_dict,
+            "dead_experts": dead_experts_list,
+            "utilization": util_dict,
             "recommendations": recs,
         }
 
@@ -900,15 +902,17 @@ class AuditReport:
             for expert_status in report.experts:
                 if expert_status.is_problematic:
                     util = expert_status.utilization
-                    entries.append(DeadExpertEntry(
-                        layer_name=layer_name,
-                        expert_idx=expert_status.expert_idx,
-                        state=expert_status.state,
-                        utilization=util,
-                        utilization_pct=util * 100.0,
-                        consecutive_cold_steps=expert_status.consecutive_cold_steps,
-                        layer_idx=layer_idx,
-                    ))
+                    entries.append(
+                        DeadExpertEntry(
+                            layer_name=layer_name,
+                            expert_idx=expert_status.expert_idx,
+                            state=expert_status.state,
+                            utilization=util,
+                            utilization_pct=util * 100.0,
+                            consecutive_cold_steps=expert_status.consecutive_cold_steps,
+                            layer_idx=layer_idx,
+                        )
+                    )
 
         entries.sort(key=lambda e: (e.layer_idx, e.expert_idx))
         return entries
@@ -925,14 +929,14 @@ class AuditReport:
             if stats is None or stats.is_empty or stats.n_experts == 0:
                 continue
 
-            util_list   = stats.utilization.tolist()
+            util_list = stats.utilization.tolist()
             counts_list = stats.expert_counts.tolist()
             total_tokens = stats.total_tokens
 
-            max_u  = max(util_list) if util_list else 0.0
-            min_u  = min(util_list) if util_list else 0.0
+            max_u = max(util_list) if util_list else 0.0
+            min_u = min(util_list) if util_list else 0.0
             mean_u = (sum(util_list) / len(util_list)) if util_list else 0.0
-            lim    = stats.load_imbalance_score
+            lim = stats.load_imbalance_score
 
             result[layer_name] = UtilizationSummary(
                 layer_name=layer_name,
@@ -976,6 +980,7 @@ class AuditReport:
 # Section 5 — Private formatting helpers
 # =============================================================================
 
+
 def _shorten_layer_name(name: str, max_len: int = 45) -> str:
     """Shorten a fully-qualified module name for display.
 
@@ -984,7 +989,7 @@ def _shorten_layer_name(name: str, max_len: int = 45) -> str:
     """
     if len(name) <= max_len:
         return name
-    return "..." + name[-(max_len - 3):]
+    return "..." + name[-(max_len - 3) :]
 
 
 def _word_wrap(text: str, width: int = 60, indent: str = "   ") -> str:
@@ -992,9 +997,9 @@ def _word_wrap(text: str, width: int = 60, indent: str = "   ") -> str:
     if len(text) <= width:
         return indent + text
 
-    words  = text.split()
-    lines  = []
-    line   = indent
+    words = text.split()
+    lines = []
+    line = indent
     is_first = True
 
     for word in words:

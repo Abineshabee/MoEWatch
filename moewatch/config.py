@@ -27,10 +27,10 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import List
 
-
 # ---------------------------------------------------------------------------
 # Output mode
 # ---------------------------------------------------------------------------
+
 
 class OutputMode(str, Enum):
     """Controls how moewatch emits diagnostic output.
@@ -48,13 +48,14 @@ class OutputMode(str, Enum):
     """
 
     CONSOLE = "console"
-    JSON    = "json"
-    SILENT  = "silent"
+    JSON = "json"
+    SILENT = "silent"
 
 
 # ---------------------------------------------------------------------------
 # Alert severity
 # ---------------------------------------------------------------------------
+
 
 class AlertLevel(str, Enum):
     """Severity levels used in live training-time alerts.
@@ -63,14 +64,15 @@ class AlertLevel(str, Enum):
     never emits FATAL — it diagnoses, it does not stop your training run.
     """
 
-    INFO  = "INFO"
-    WARN  = "WARN"
+    INFO = "INFO"
+    WARN = "WARN"
     ERROR = "ERROR"
 
 
 # ---------------------------------------------------------------------------
 # WatchConfig
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class WatchConfig:
@@ -178,28 +180,28 @@ class WatchConfig:
     """
 
     # -- Expert health thresholds -------------------------------------------
-    dead_threshold:      float = 0.001   # 0.1 % utilisation → DEAD
-    cold_threshold:      float = 0.005   # 0.5 % utilisation → COLD
-    cold_steps_limit:    int   = 500     # steps cold before → DEAD
+    dead_threshold: float = 0.001  # 0.1 % utilisation → DEAD
+    cold_threshold: float = 0.005  # 0.5 % utilisation → COLD
+    cold_steps_limit: int = 500  # steps cold before → DEAD
 
     # -- Entropy thresholds -------------------------------------------------
-    entropy_warn:        float = 0.60    # < 60 % of H_max → WARN
-    entropy_critical:    float = 0.40    # < 40 % of H_max → ERROR
-    entropy_drop_warn:   float = 0.20    # 20 % relative drop → WARN
+    entropy_warn: float = 0.60  # < 60 % of H_max → WARN
+    entropy_critical: float = 0.40  # < 40 % of H_max → ERROR
+    entropy_drop_warn: float = 0.20  # 20 % relative drop → WARN
 
     # -- Load imbalance thresholds ------------------------------------------
-    load_imbalance_warn:  float = 3.0   # max/mean > 3 → WARN
-    load_imbalance_error: float = 5.0   # max/mean > 5 → ERROR
+    load_imbalance_warn: float = 3.0  # max/mean > 3 → WARN
+    load_imbalance_error: float = 5.0  # max/mean > 5 → ERROR
 
     # -- Sampling & windowing -----------------------------------------------
-    window_steps:          int  = 500
-    sample_every:          int  = 10
-    log_every:             int  = 100
-    ring_buffer_capacity:  int  = 10_000
+    window_steps: int = 500
+    sample_every: int = 10
+    log_every: int = 100
+    ring_buffer_capacity: int = 10_000
 
     # -- Output & display ---------------------------------------------------
-    output:   OutputMode = OutputMode.CONSOLE
-    no_color: bool       = False
+    output: OutputMode = OutputMode.CONSOLE
+    no_color: bool = False
 
     # -- Router discovery ---------------------------------------------------
     router_modules: List[str] = field(default_factory=list)
@@ -237,10 +239,10 @@ class WatchConfig:
                     f"  {name}={value!r} must be in the open interval (0, 1)."
                 )
 
-        _check_fraction("dead_threshold",    self.dead_threshold)
-        _check_fraction("cold_threshold",    self.cold_threshold)
-        _check_fraction("entropy_warn",      self.entropy_warn)
-        _check_fraction("entropy_critical",  self.entropy_critical)
+        _check_fraction("dead_threshold", self.dead_threshold)
+        _check_fraction("cold_threshold", self.cold_threshold)
+        _check_fraction("entropy_warn", self.entropy_warn)
+        _check_fraction("entropy_critical", self.entropy_critical)
         _check_fraction("entropy_drop_warn", self.entropy_drop_warn)
 
         # -- Ordering constraints -------------------------------------------
@@ -264,11 +266,11 @@ class WatchConfig:
 
         # -- Positive integer checks ----------------------------------------
         for name, value in [
-            ("window_steps",         self.window_steps),
-            ("sample_every",         self.sample_every),
-            ("log_every",            self.log_every),
+            ("window_steps", self.window_steps),
+            ("sample_every", self.sample_every),
+            ("log_every", self.log_every),
             ("ring_buffer_capacity", self.ring_buffer_capacity),
-            ("cold_steps_limit",     self.cold_steps_limit),
+            ("cold_steps_limit", self.cold_steps_limit),
         ]:
             if not isinstance(value, int) or value < 1:
                 errors.append(f"  {name}={value!r} must be a positive integer.")
@@ -296,8 +298,7 @@ class WatchConfig:
         # -- Raise aggregated errors ----------------------------------------
         if errors:
             raise ValueError(
-                "[moewatch] WatchConfig validation failed:\n"
-                + "\n".join(errors)
+                "[moewatch] WatchConfig validation failed:\n" + "\n".join(errors)
             )
 
     # -----------------------------------------------------------------------
@@ -351,21 +352,21 @@ class WatchConfig:
     def to_dict(self) -> dict:
         """Return a JSON-serialisable dictionary representation."""
         return {
-            "dead_threshold":        self.dead_threshold,
-            "cold_threshold":        self.cold_threshold,
-            "cold_steps_limit":      self.cold_steps_limit,
-            "entropy_warn":          self.entropy_warn,
-            "entropy_critical":      self.entropy_critical,
-            "entropy_drop_warn":     self.entropy_drop_warn,
-            "load_imbalance_warn":   self.load_imbalance_warn,
-            "load_imbalance_error":  self.load_imbalance_error,
-            "window_steps":          self.window_steps,
-            "sample_every":          self.sample_every,
-            "log_every":             self.log_every,
-            "ring_buffer_capacity":  self.ring_buffer_capacity,
-            "output":                self.output.value,
-            "no_color":              self.no_color,
-            "router_modules":        list(self.router_modules),
+            "dead_threshold": self.dead_threshold,
+            "cold_threshold": self.cold_threshold,
+            "cold_steps_limit": self.cold_steps_limit,
+            "entropy_warn": self.entropy_warn,
+            "entropy_critical": self.entropy_critical,
+            "entropy_drop_warn": self.entropy_drop_warn,
+            "load_imbalance_warn": self.load_imbalance_warn,
+            "load_imbalance_error": self.load_imbalance_error,
+            "window_steps": self.window_steps,
+            "sample_every": self.sample_every,
+            "log_every": self.log_every,
+            "ring_buffer_capacity": self.ring_buffer_capacity,
+            "output": self.output.value,
+            "no_color": self.no_color,
+            "router_modules": list(self.router_modules),
         }
 
     def __repr__(self) -> str:  # pragma: no cover

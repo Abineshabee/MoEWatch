@@ -3,7 +3,7 @@
 # Metric computation layer — entropy analysis and expert collapse detection.
 # ------------------------------------------------------------------------------
 
-from .entropy  import EntropyAnalyzer, EntropyResult, LayerEntropyReport
+from .entropy import EntropyAnalyzer, EntropyResult, LayerEntropyReport
 from .collapse import CollapseDetector, ExpertStatus, ExpertState, LayerCollapseReport
 
 __all__ = [

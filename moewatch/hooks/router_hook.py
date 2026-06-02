@@ -50,6 +50,7 @@ log = logging.getLogger(__name__)
 # RoutingEvent — one forward-pass snapshot for a single router layer
 # ------------------------------------------------------------------------------
 
+
 @dataclass
 class RoutingEvent:
     """Immutable snapshot of a single router forward pass.
@@ -73,19 +74,20 @@ class RoutingEvent:
     top_k        : Number of experts each token was routed to (inferred from the output).
     """
 
-    layer_name:    str
-    step:          int
-    timestamp:     float
-    n_experts:     int
-    expert_counts: torch.Tensor          # shape: (n_experts,), dtype: int64, device: CPU
-    total_tokens:  int
-    raw_logits:    Optional[torch.Tensor] = None   # shape: (total_tokens, n_experts), CPU
-    top_k:         int                    = 1
+    layer_name: str
+    step: int
+    timestamp: float
+    n_experts: int
+    expert_counts: torch.Tensor  # shape: (n_experts,), dtype: int64, device: CPU
+    total_tokens: int
+    raw_logits: Optional[torch.Tensor] = None  # shape: (total_tokens, n_experts), CPU
+    top_k: int = 1
 
 
 # ------------------------------------------------------------------------------
 # RouterHook
 # ------------------------------------------------------------------------------
+
 
 class RouterHook:
     """PyTorch ``register_forward_hook`` callback for a single MoE router module.
@@ -107,16 +109,16 @@ class RouterHook:
     def __init__(
         self,
         layer_name: str,
-        collector: Any,            # StatCollector — forward ref to avoid circular import
+        collector: Any,  # StatCollector — forward ref to avoid circular import
         config: WatchConfig,
     ) -> None:
         self.layer_name = layer_name
-        self.collector  = collector
-        self.config     = config
+        self.collector = collector
+        self.config = config
 
-        self._call_count:  int = 0   # total forward passes seen (before sampling filter)
-        self._error_count: int = 0   # extraction errors (non-fatal)
-        self._handle: Optional[Any] = None   # torch hook handle
+        self._call_count: int = 0  # total forward passes seen (before sampling filter)
+        self._error_count: int = 0  # extraction errors (non-fatal)
+        self._handle: Optional[Any] = None  # torch hook handle
 
     # --------------------------------------------------------------------------
     # Hook callable — called by PyTorch after each forward pass of the module
@@ -154,7 +156,7 @@ class RouterHook:
 
         try:
             self.collector.add_event(event)
-        except Exception as exc:                    # pragma: no cover
+        except Exception as exc:  # pragma: no cover
             log.warning(
                 "[moewatch] RouterHook(%s): collector.add_event failed: %s",
                 self.layer_name,
@@ -264,8 +266,8 @@ class RouterHook:
 
     def _from_object_output(self, output: Any) -> Optional[RoutingEvent]:
         """Handle output objects with named routing attributes."""
-        logits  = getattr(output, "router_logits",  None)
-        indices = getattr(output, "expert_indices",  None)
+        logits = getattr(output, "router_logits", None)
+        indices = getattr(output, "expert_indices", None)
 
         if logits is not None and isinstance(logits, torch.Tensor):
             return self._from_logits_tensor(logits.detach().cpu())
@@ -283,7 +285,9 @@ class RouterHook:
 
         for key in ("expert_indices", "selected_experts", "top_k_indices"):
             if key in output and isinstance(output[key], torch.Tensor):
-                return self._from_expert_indices(output[key].detach().cpu(), logits=None)
+                return self._from_expert_indices(
+                    output[key].detach().cpu(), logits=None
+                )
 
         return None
 
@@ -308,8 +312,10 @@ class RouterHook:
         float_logits = logits.float()
 
         # Top-1 selection (most architectures)
-        top1_indices = float_logits.argmax(dim=-1)   # (total_tokens,)
-        expert_counts = torch.bincount(top1_indices, minlength=n_experts).to(torch.int64)
+        top1_indices = float_logits.argmax(dim=-1)  # (total_tokens,)
+        expert_counts = torch.bincount(top1_indices, minlength=n_experts).to(
+            torch.int64
+        )
 
         return RoutingEvent(
             layer_name=self.layer_name,
@@ -346,7 +352,9 @@ class RouterHook:
 
         # Infer n_experts from the maximum observed index + 1
         n_experts = int(flat_indices.max().item()) + 1
-        expert_counts = torch.bincount(flat_indices, minlength=n_experts).to(torch.int64)
+        expert_counts = torch.bincount(flat_indices, minlength=n_experts).to(
+            torch.int64
+        )
 
         return RoutingEvent(
             layer_name=self.layer_name,

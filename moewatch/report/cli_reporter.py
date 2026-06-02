@@ -61,7 +61,6 @@ from .audit_report import (
 from ..analyzer.entropy import EntropyResult, TrendDirection
 from ..analyzer.collapse import ExpertState
 
-
 # =============================================================================
 # Section 1 — ANSI colour palette
 # =============================================================================
@@ -70,61 +69,61 @@ from ..analyzer.collapse import ExpertState
 # reference raw ANSI escape sequences — use the _c() / _bold() helpers instead.
 # =============================================================================
 
-_RESET   = "\033[0m"
-_BOLD    = "\033[1m"
-_DIM     = "\033[2m"
+_RESET = "\033[0m"
+_BOLD = "\033[1m"
+_DIM = "\033[2m"
 
 # Foreground colours
-_FG_RED     = "\033[31m"
-_FG_GREEN   = "\033[32m"
-_FG_YELLOW  = "\033[33m"
-_FG_BLUE    = "\033[34m"
+_FG_RED = "\033[31m"
+_FG_GREEN = "\033[32m"
+_FG_YELLOW = "\033[33m"
+_FG_BLUE = "\033[34m"
 _FG_MAGENTA = "\033[35m"
-_FG_CYAN    = "\033[36m"
-_FG_WHITE   = "\033[37m"
+_FG_CYAN = "\033[36m"
+_FG_WHITE = "\033[37m"
 
 # Bright foreground colours (bolder on most terminals)
-_FG_BRED    = "\033[91m"
-_FG_BGREEN  = "\033[92m"
+_FG_BRED = "\033[91m"
+_FG_BGREEN = "\033[92m"
 _FG_BYELLOW = "\033[93m"
-_FG_BCYAN   = "\033[96m"
-_FG_BWHITE  = "\033[97m"
+_FG_BCYAN = "\033[96m"
+_FG_BWHITE = "\033[97m"
 
 # Background colours (used for the health banner only)
-_BG_RED    = "\033[41m"
-_BG_GREEN  = "\033[42m"
+_BG_RED = "\033[41m"
+_BG_GREEN = "\033[42m"
 _BG_YELLOW = "\033[43m"
-_BG_BLUE   = "\033[44m"
+_BG_BLUE = "\033[44m"
 
 # Mappings: AlertLevel → foreground colour
 _ALERT_FG = {
-    AlertLevel.INFO:  _FG_BGREEN,
-    AlertLevel.WARN:  _FG_BYELLOW,
+    AlertLevel.INFO: _FG_BGREEN,
+    AlertLevel.WARN: _FG_BYELLOW,
     AlertLevel.ERROR: _FG_BRED,
 }
 
 # Mappings: OverallHealth → (background, foreground)
 _HEALTH_BANNER_COLOUR = {
-    OverallHealth.HEALTHY:   (_BG_GREEN,  _FG_WHITE),
+    OverallHealth.HEALTHY: (_BG_GREEN, _FG_WHITE),
     OverallHealth.DEGRADING: (_BG_YELLOW, _FG_WHITE),
-    OverallHealth.CRITICAL:  (_BG_RED,    _FG_BWHITE),
-    OverallHealth.UNKNOWN:   (_BG_BLUE,   _FG_BWHITE),
+    OverallHealth.CRITICAL: (_BG_RED, _FG_BWHITE),
+    OverallHealth.UNKNOWN: (_BG_BLUE, _FG_BWHITE),
 }
 
 # Icons for alert levels and expert states
-_ICON_OK      = "✅"
-_ICON_WARN    = "⚠ "
-_ICON_ERROR   = "❌"
-_ICON_COLD    = "🥶"
-_ICON_TIP     = "💡"
-_ICON_CHART   = "📊"
-_ICON_ROUTER  = "🔀"
+_ICON_OK = "✅"
+_ICON_WARN = "⚠ "
+_ICON_ERROR = "❌"
+_ICON_COLD = "🥶"
+_ICON_TIP = "💡"
+_ICON_CHART = "📊"
+_ICON_ROUTER = "🔀"
 
 _TREND_SYMBOL = {
-    TrendDirection.STABLE:    "→",
+    TrendDirection.STABLE: "→",
     TrendDirection.IMPROVING: "↑",
     TrendDirection.DECLINING: "↓",
-    TrendDirection.UNKNOWN:   "·",
+    TrendDirection.UNKNOWN: "·",
 }
 
 
@@ -144,15 +143,16 @@ _BAR_MAX_WIDTH = 20
 # =============================================================================
 
 TERMINAL_WIDTH: int = 80
-_INNER_WIDTH:   int = TERMINAL_WIDTH - 4   # inside the box (2 × "  ")
-_LINE_HEAVY:    str = "═" * TERMINAL_WIDTH
-_LINE_LIGHT:    str = "─" * TERMINAL_WIDTH
-_LINE_MED:      str = "━" * TERMINAL_WIDTH
+_INNER_WIDTH: int = TERMINAL_WIDTH - 4  # inside the box (2 × "  ")
+_LINE_HEAVY: str = "═" * TERMINAL_WIDTH
+_LINE_LIGHT: str = "─" * TERMINAL_WIDTH
+_LINE_MED: str = "━" * TERMINAL_WIDTH
 
 
 # =============================================================================
 # Section 4 — CLIReporter
 # =============================================================================
+
 
 class CLIReporter:
     """Renders a coloured ASCII diagnostic report from an :class:`AuditReport`.
@@ -174,7 +174,7 @@ class CLIReporter:
     """
 
     def __init__(self, config: WatchConfig) -> None:
-        self.config  = config
+        self.config = config
         # Respect both the WatchConfig flag and the NO_COLOR env standard
         self.no_color: bool = config.no_color or ("NO_COLOR" in os.environ)
 
@@ -245,17 +245,17 @@ class CLIReporter:
         self._println(self._c(_LINE_LIGHT, _DIM), out)
 
         # -- Health banner --------------------------------------------------
-        health  = report.overall_health
-        bg, fg  = _HEALTH_BANNER_COLOUR.get(health, (_BG_BLUE, _FG_BWHITE))
-        icon    = {
-            OverallHealth.HEALTHY:   _ICON_OK,
+        health = report.overall_health
+        bg, fg = _HEALTH_BANNER_COLOUR.get(health, (_BG_BLUE, _FG_BWHITE))
+        icon = {
+            OverallHealth.HEALTHY: _ICON_OK,
             OverallHealth.DEGRADING: _ICON_WARN,
-            OverallHealth.CRITICAL:  _ICON_ERROR,
-            OverallHealth.UNKNOWN:   "❓",
+            OverallHealth.CRITICAL: _ICON_ERROR,
+            OverallHealth.UNKNOWN: "❓",
         }.get(health, "?")
 
         banner_text = f"  {icon}  Overall Health: {health.value:<12s}"
-        padded      = banner_text + " " * max(0, TERMINAL_WIDTH - len(banner_text))
+        padded = banner_text + " " * max(0, TERMINAL_WIDTH - len(banner_text))
         if not self.no_color:
             print(f"{bg}{fg}{_BOLD}{padded}{_RESET}", file=out)
         else:
@@ -265,14 +265,17 @@ class CLIReporter:
 
         # -- Run metadata table ----------------------------------------------
         meta_rows = [
-            ("Router layers",      str(report.n_layers)),
-            ("Experts monitored",  str(report.n_experts_total)),
-            ("Completed steps",    str(report.completed_steps)),
-            ("Elapsed",            f"{report.elapsed_seconds:.2f} s"),
-            ("Device",             report.device),
-            ("Dead experts",       self._coloured_count(report.n_dead, AlertLevel.ERROR)),
-            ("Cold experts",       self._coloured_count(report.n_cold, AlertLevel.WARN)),
-            ("Healthy experts",    self._coloured_count(report.n_healthy, AlertLevel.INFO)),
+            ("Router layers", str(report.n_layers)),
+            ("Experts monitored", str(report.n_experts_total)),
+            ("Completed steps", str(report.completed_steps)),
+            ("Elapsed", f"{report.elapsed_seconds:.2f} s"),
+            ("Device", report.device),
+            ("Dead experts", self._coloured_count(report.n_dead, AlertLevel.ERROR)),
+            ("Cold experts", self._coloured_count(report.n_cold, AlertLevel.WARN)),
+            (
+                "Healthy experts",
+                self._coloured_count(report.n_healthy, AlertLevel.INFO),
+            ),
         ]
         for label, value in meta_rows:
             label_col = self._c(f"  {label:<28s}", _DIM)
@@ -336,22 +339,25 @@ class CLIReporter:
             print(f"{dim_name}  {'N/A':>8s}  {'---':>6s}  {'NO DATA':<7s}", file=out)
             return
 
-        alert  = result.alert_level
+        alert = result.alert_level
         colour = _ALERT_FG.get(alert, _FG_WHITE)
-        icon   = _ICON_OK if alert == AlertLevel.INFO else (
-                 _ICON_WARN if alert == AlertLevel.WARN else _ICON_ERROR)
-
-        trend_sym   = _TREND_SYMBOL.get(result.trend, "·")
-        trend_col   = (
-            _FG_BGREEN  if result.trend == TrendDirection.IMPROVING else
-            _FG_BRED    if result.trend == TrendDirection.DECLINING  else
-            _FG_WHITE
+        icon = (
+            _ICON_OK
+            if alert == AlertLevel.INFO
+            else (_ICON_WARN if alert == AlertLevel.WARN else _ICON_ERROR)
         )
-        trend_str   = self._c(f"{trend_sym} {result.trend:<9s}", trend_col)
 
-        name_str    = self._c(f"  {short_name:<44s}", colour)
-        h_str       = f"{result.entropy_bits:>8.3f}"
-        norm_str    = self._c(f"{result.entropy_norm*100:>5.1f}%", colour)
+        trend_sym = _TREND_SYMBOL.get(result.trend, "·")
+        trend_col = (
+            _FG_BGREEN
+            if result.trend == TrendDirection.IMPROVING
+            else _FG_BRED if result.trend == TrendDirection.DECLINING else _FG_WHITE
+        )
+        trend_str = self._c(f"{trend_sym} {result.trend:<9s}", trend_col)
+
+        name_str = self._c(f"  {short_name:<44s}", colour)
+        h_str = f"{result.entropy_bits:>8.3f}"
+        norm_str = self._c(f"{result.entropy_norm*100:>5.1f}%", colour)
         alert_badge = self._alert_badge(alert)
 
         print(
@@ -387,7 +393,7 @@ class CLIReporter:
         self,
         layer_name: str,
         summary: UtilizationSummary,
-        collapse,     # Optional[LayerCollapseReport]
+        collapse,  # Optional[LayerCollapseReport]
         out,
     ) -> None:
         """Render a single layer's per-expert utilization histogram."""
@@ -398,9 +404,13 @@ class CLIReporter:
         lim = summary.load_imbalance_score
         lim_str = f"{lim:.2f}×" if not math.isnan(lim) else "N/A"
         lim_col = (
-            _FG_BRED    if not math.isnan(lim) and lim > self.config.load_imbalance_error else
-            _FG_BYELLOW if not math.isnan(lim) and lim > self.config.load_imbalance_warn  else
-            _FG_BGREEN
+            _FG_BRED
+            if not math.isnan(lim) and lim > self.config.load_imbalance_error
+            else (
+                _FG_BYELLOW
+                if not math.isnan(lim) and lim > self.config.load_imbalance_warn
+                else _FG_BGREEN
+            )
         )
         header = (
             f"  ┌─ {self._c(short_name, _BOLD)}  "
@@ -420,14 +430,16 @@ class CLIReporter:
                     problematic_idxs.add(expert.expert_idx)
 
         # Show all experts when n ≤ 32; otherwise abbreviate healthy ones.
-        show_all = (n <= 32)
+        show_all = n <= 32
 
         shown_count = 0
         abbreviated = False
 
         for idx in range(n):
-            util_frac = summary.utilization[idx] if idx < len(summary.utilization) else 0.0
-            count     = summary.token_counts[idx] if idx < len(summary.token_counts) else 0
+            util_frac = (
+                summary.utilization[idx] if idx < len(summary.utilization) else 0.0
+            )
+            count = summary.token_counts[idx] if idx < len(summary.token_counts) else 0
 
             # Expert state for colour
             state: Optional[ExpertState] = None
@@ -436,7 +448,7 @@ class CLIReporter:
                 if expert_status is not None:
                     state = expert_status.state
 
-            is_prob = (idx in problematic_idxs)
+            is_prob = idx in problematic_idxs
 
             if not show_all and not is_prob:
                 # Abbreviated: only show every 4th healthy expert
@@ -468,10 +480,10 @@ class CLIReporter:
 
     def _render_expert_bar(
         self,
-        idx:       int,
+        idx: int,
         util_frac: float,
-        count:     int,
-        state:     Optional[ExpertState],
+        count: int,
+        state: Optional[ExpertState],
         out,
     ) -> None:
         """Render a single expert's utilization bar line.
@@ -482,10 +494,10 @@ class CLIReporter:
         # -- Determine colour and icon based on expert state ----------------
         if state == ExpertState.DEAD:
             bar_colour = _FG_BRED
-            state_tag  = self._c("[DEAD]", _FG_BRED + _BOLD)
+            state_tag = self._c("[DEAD]", _FG_BRED + _BOLD)
         elif state == ExpertState.COLD:
             bar_colour = _FG_BYELLOW
-            state_tag  = self._c("[COLD]", _FG_BYELLOW)
+            state_tag = self._c("[COLD]", _FG_BYELLOW)
         else:
             # Colour by utilization quartile
             if util_frac >= 0.15:
@@ -496,13 +508,17 @@ class CLIReporter:
                 bar_colour = _FG_BYELLOW
             else:
                 bar_colour = _FG_BRED
-            state_tag = self._c("[OK]  ", _FG_BGREEN) if util_frac >= 0.01 else self._c("[LOW] ", _FG_BYELLOW)
+            state_tag = (
+                self._c("[OK]  ", _FG_BGREEN)
+                if util_frac >= 0.01
+                else self._c("[LOW] ", _FG_BYELLOW)
+            )
 
         # -- Build the ASCII bar --------------------------------------------
         bar = _build_bar(util_frac, width=_BAR_MAX_WIDTH)
         bar_str = self._c(bar, bar_colour)
 
-        pct_str   = f"{util_frac * 100:>6.3f}%"
+        pct_str = f"{util_frac * 100:>6.3f}%"
         count_str = self._c(f"({count:>7,} tok)", _DIM)
 
         line = (
@@ -542,16 +558,16 @@ class CLIReporter:
         for entry in dead_list:
             short = _shorten_layer_name(entry.layer_name, max_len=42)
             if entry.is_dead:
-                col   = _FG_BRED
-                icon  = _ICON_ERROR
+                col = _FG_BRED
+                icon = _ICON_ERROR
             else:
-                col   = _FG_BYELLOW
-                icon  = _ICON_COLD
+                col = _FG_BYELLOW
+                icon = _ICON_COLD
 
             state_str = self._c(f"{entry.state.value:<8s}", col + _BOLD)
-            util_str  = self._c(f"{entry.utilization_pct:>7.4f}", col)
-            cold_str  = self._c(f"{entry.consecutive_cold_steps:>10d}", _DIM)
-            name_str  = self._c(f"  {short:<42s}", col)
+            util_str = self._c(f"{entry.utilization_pct:>7.4f}", col)
+            cold_str = self._c(f"{entry.consecutive_cold_steps:>10d}", _DIM)
+            name_str = self._c(f"  {short:<42s}", col)
 
             print(
                 f"{icon}{name_str}  {entry.expert_idx:>4d}  "
@@ -596,19 +612,21 @@ class CLIReporter:
             # Parse severity prefix from the recommendation string
             if rec.startswith("[CRITICAL]"):
                 colour = _FG_BRED
-                icon   = _ICON_ERROR
-                text   = rec[len("[CRITICAL]"):].lstrip()
+                icon = _ICON_ERROR
+                text = rec[len("[CRITICAL]") :].lstrip()
             elif rec.startswith("[WARN]"):
                 colour = _FG_BYELLOW
-                icon   = _ICON_WARN
-                text   = rec[len("[WARN]"):].lstrip()
+                icon = _ICON_WARN
+                text = rec[len("[WARN]") :].lstrip()
             else:
                 colour = _FG_BGREEN
-                icon   = _ICON_OK
-                text   = rec[len("[INFO]"):].lstrip() if rec.startswith("[INFO]") else rec
+                icon = _ICON_OK
+                text = (
+                    rec[len("[INFO]") :].lstrip() if rec.startswith("[INFO]") else rec
+                )
 
             # Print the first sentence in colour, continuation lines dimmed
-            sentences  = text.split(". ", 1)
+            sentences = text.split(". ", 1)
             first_line = self._c(f"  {icon}  {sentences[0]}.", colour + _BOLD)
             self._println(first_line, out)
 
@@ -690,7 +708,7 @@ class CLIReporter:
 
     def _alert_badge(self, level: AlertLevel) -> str:
         """Return a coloured short string badge for *level*."""
-        label  = level.value
+        label = level.value
         colour = _ALERT_FG.get(level, _FG_WHITE)
         return self._c(label, colour + _BOLD)
 
@@ -709,6 +727,7 @@ class CLIReporter:
 # =============================================================================
 # Section 5 — ASCII bar builder
 # =============================================================================
+
 
 def _build_bar(fraction: float, width: int = _BAR_MAX_WIDTH) -> str:
     """Build a fixed-width Unicode block-element bar for *fraction* ∈ [0, 1].
@@ -741,7 +760,7 @@ def _build_bar(fraction: float, width: int = _BAR_MAX_WIDTH) -> str:
     total_eighths = round(clamped * width * 8)
 
     full_blocks = total_eighths // 8
-    remainder   = total_eighths % 8
+    remainder = total_eighths % 8
 
     bar = "█" * full_blocks
 

@@ -43,7 +43,7 @@ import threading
 from typing import Iterator, List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..hooks.router_hook import RoutingEvent   # circular-import guard
+    from ..hooks.router_hook import RoutingEvent  # circular-import guard
 
 log = logging.getLogger(__name__)
 
@@ -77,13 +77,13 @@ class RingBuffer:
                 f"got {capacity!r}."
             )
 
-        self._capacity:    int           = capacity
-        self._buffer:      List[Optional["RoutingEvent"]] = [None] * capacity
-        self._head:        int           = 0    # next write position
-        self._size:        int           = 0    # number of valid entries
-        self._total_written: int         = 0    # cumulative events written (never resets)
-        self._wrapped:     bool          = False
-        self._lock:        threading.Lock = threading.Lock()
+        self._capacity: int = capacity
+        self._buffer: List[Optional["RoutingEvent"]] = [None] * capacity
+        self._head: int = 0  # next write position
+        self._size: int = 0  # number of valid entries
+        self._total_written: int = 0  # cumulative events written (never resets)
+        self._wrapped: bool = False
+        self._lock: threading.Lock = threading.Lock()
 
     # --------------------------------------------------------------------------
     # Write
@@ -154,11 +154,11 @@ class RingBuffer:
 
             if self._size < self._capacity:
                 # Buffer has not yet wrapped — valid entries are 0 .. size-1
-                return [e for e in self._buffer[:self._size] if e is not None]
+                return [e for e in self._buffer[: self._size] if e is not None]
 
             # Buffer has wrapped — oldest entry is at self._head
-            tail   = self._buffer[self._head:]
-            head   = self._buffer[:self._head]
+            tail = self._buffer[self._head :]
+            head = self._buffer[: self._head]
             events = tail + head
             return [e for e in events if e is not None]
 
@@ -191,10 +191,10 @@ class RingBuffer:
         Acquires the lock so it is safe to call concurrently with snapshot().
         """
         with self._lock:
-            self._buffer       = [None] * self._capacity
-            self._head         = 0
-            self._size         = 0
-            self._wrapped      = False
+            self._buffer = [None] * self._capacity
+            self._head = 0
+            self._size = 0
+            self._wrapped = False
         log.debug("[moewatch] RingBuffer cleared.")
 
     # --------------------------------------------------------------------------
