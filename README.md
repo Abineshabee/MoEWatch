@@ -1,4 +1,7 @@
-# MoEWatch
+
+<p align="center">
+  <img src="assets/images/banner.svg" width="80%" />
+</p>
 
 > **The pytest for Mixture-of-Experts models.** Catch expert collapse, routing entropy collapse, and load imbalance — before they silently wreck your training run.
 
