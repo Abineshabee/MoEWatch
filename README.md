@@ -129,7 +129,7 @@ config = WatchConfig(
 )
 ```
 
-See the [Configuration reference →](https://github.com/Abineshabee/moewatch/docs/config.md) for all fields and their defaults.
+See the [Configuration reference →](https://github.com/Abineshabee/MoEWatch/blob/main/docs/config.md) for all fields and their defaults.
 
 ---
 
