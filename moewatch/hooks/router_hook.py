@@ -302,6 +302,11 @@ class RouterHook:
             # Single-token batch: unsqueeze to (1, n_experts)
             logits = logits.unsqueeze(0)
 
+        if logits.ndim == 3:
+            # (batch, seq_len, n_experts) → (batch × seq_len, n_experts)
+            batch, seq_len, n_experts = logits.shape
+            logits = logits.reshape(batch * seq_len, n_experts)
+
         if logits.ndim != 2:
             raise ValueError(
                 f"RouterHook({self.layer_name}): expected 2-D logits tensor, "
