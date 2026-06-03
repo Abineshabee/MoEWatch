@@ -69,6 +69,7 @@ packages = ["moewatch"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["tests"]
 addopts = "--cov=moewatch --cov-report=term-missing --cov-fail-under=80 --import-mode=importlib"
 filterwarnings = [
     "ignore::DeprecationWarning:torchao",
@@ -91,7 +92,7 @@ line-length = 88
 target-version = ["py38", "py39", "py310", "py311", "py312"]
 
 [tool.ruff]
-line-height = 88
+line-length = 88
 target-version = "py38"
 
 [tool.mypy]
