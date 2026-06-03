@@ -179,6 +179,15 @@ _EXCLUSION_SUBSTRINGS: FrozenSet[str] = frozenset(
 # (rules out tiny bias-only or scalar modules whose name contains "gate")
 _MIN_PARAM_COUNT: int = 1
 
+def _remove_ancestor_duplicates(names: list) -> list:
+    names = sorted(names, key=len, reverse=True)  # deepest first
+    result = []
+
+    for name in names:
+        if not any(prev.startswith(name + ".") for prev in result):
+            result.append(name)
+
+    return list(reversed(result))
 
 # ------------------------------------------------------------------------------
 # Public API
@@ -253,7 +262,7 @@ def detect_router_modules(model: nn.Module) -> List[str]:
 
         if has_router_substring and not has_exclusion:
             # Final guard: must have at least one learnable parameter
-            param_count = sum(1 for _ in module.parameters(recurse=False))
+            param_count = sum(1 for _ in module.parameters(recurse=True))
             if param_count >= _MIN_PARAM_COUNT:
                 if name not in seen:
                     found_heuristic.append(name)
@@ -272,24 +281,26 @@ def detect_router_modules(model: nn.Module) -> List[str]:
     # finds nothing at all. This prevents false-positive heuristic hits from
     # polluting a clean registry detection on known architectures.
     if found_registry:
+        result = _remove_ancestor_duplicates(found_registry)
         log.info(
             "[moewatch] Architecture registry detected %d router module(s) "
             "(heuristic found %d additional — ignored because registry succeeded).",
-            len(found_registry),
+            len(result),           # ← use result count, not found_registry
             len(found_heuristic),
         )
-        _log_detected(found_registry)
-        return found_registry
+        _log_detected(result)
+        return result
 
     if found_heuristic:
+        result = _remove_ancestor_duplicates(found_heuristic)
         log.info(
             "[moewatch] Heuristic detection found %d router module(s). "
             "If these look wrong, use WatchConfig(router_modules=[...]) "
             "to specify them explicitly.",
-            len(found_heuristic),
+            len(result),           # ← use result count, not found_heuristic
         )
-        _log_detected(found_heuristic)
-        return found_heuristic
+        _log_detected(result)
+        return result
 
     # --------------------------------------------------------------------------
     # Nothing found — emit a detailed diagnostic
