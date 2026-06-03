@@ -16,7 +16,7 @@
 #  Author : Abinesh (GitHub: Abineshabee)
 #  License: Apache 2.0
 #  Docs   : https://github.com/Abineshabee/moewatch
-#
+#  __email__ = "abineshabee2@gmail.com"
 # =============================================================================
 
 from __future__ import annotations
