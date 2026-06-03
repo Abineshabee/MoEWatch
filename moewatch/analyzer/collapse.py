@@ -487,8 +487,8 @@ class CollapseDetector:
         -------
         LayerCollapseReport
         """
-        # -- Empty layer (no events yet) --------------------------------------
-        if stats.is_empty or stats.n_experts == 0:
+        # -- Empty layer or insufficient data -----------------------------------
+        if stats.is_empty or stats.n_experts == 0 or stats.event_count < 5:
             return LayerCollapseReport(
                 layer_name=layer_name,
                 n_experts=stats.n_experts,
