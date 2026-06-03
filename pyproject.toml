@@ -9,7 +9,7 @@ description = "A lightweight diagnostic and audit library for Mixture-of-Experts
 readme = "README.md"
 license = { text = "Apache-2.0" }
 authors = [
-    { name = "Abinesh", github = "Abineshabee" }
+  { name = "Abinesh N", email = "abineshabee2@gmail.com" }
 ]
 keywords = [
     "mixture-of-experts",
