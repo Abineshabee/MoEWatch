@@ -162,8 +162,8 @@ WatchConfig(output="silent")
 
 ## Documentation
 
-- [Getting started](https://github.com/Abineshabee/moewatch/docs/quickstart.md)
-- [Configuration reference](https://github.com/Abineshabee/moewatch/docs/config.md)
+- [Getting started](https://github.com/Abineshabee/MoEWatch/blob/main/docs/quickstart.md)
+- [Configuration reference](https://github.com/Abineshabee/MoEWatch/blob/main/docs/config.md)
 - [API reference](https://github.com/Abineshabee/MoEWatch/blob/main/docs/api_reference.md)
 - [Adding a custom architecture](https://github.com/Abineshabee/moewatch/docs/custom-architecture.md)
 - [Contributing](CONTRIBUTING.md)
