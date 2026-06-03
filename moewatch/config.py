@@ -198,6 +198,7 @@ class WatchConfig:
     sample_every: int = 10
     log_every: int = 100
     ring_buffer_capacity: int = 10_000
+    min_events_for_collapse: int = 2
 
     # -- Output & display ---------------------------------------------------
     output: OutputMode = OutputMode.CONSOLE
@@ -271,6 +272,7 @@ class WatchConfig:
             ("log_every", self.log_every),
             ("ring_buffer_capacity", self.ring_buffer_capacity),
             ("cold_steps_limit", self.cold_steps_limit),
+            ("min_events_for_collapse", self.min_events_for_collapse),
         ]:
             if not isinstance(value, int) or value < 1:
                 errors.append(f"  {name}={value!r} must be a positive integer.")
@@ -367,6 +369,7 @@ class WatchConfig:
             "output": self.output.value,
             "no_color": self.no_color,
             "router_modules": list(self.router_modules),
+            "min_events_for_collapse": self.min_events_for_collapse,
         }
 
     def __repr__(self) -> str:  # pragma: no cover

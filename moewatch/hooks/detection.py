@@ -188,7 +188,7 @@ def _remove_ancestor_duplicates(names: List[str]) -> List[str]:
         if not any(prev.startswith(name + ".") for prev in result):
             result.append(name)
 
-    return list(reversed(result))
+    return sorted(result)
 
 
 # ------------------------------------------------------------------------------
