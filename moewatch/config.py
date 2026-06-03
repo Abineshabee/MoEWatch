@@ -344,8 +344,13 @@ class WatchConfig:
 
     @classmethod
     def silent(cls) -> "WatchConfig":
-        """No real-time output. Results only available via the AuditReport."""
-        return cls(output=OutputMode.SILENT)
+        """No real-time output. Results only available via the AuditReport.
+
+        Uses ``sample_every=1`` so that every forward pass is instrumented —
+        silent mode is typically used for short programmatic audits where you
+        need accurate data even over a small number of steps.
+        """
+        return cls(output=OutputMode.SILENT, sample_every=1)
 
     # -----------------------------------------------------------------------
     # Serialisation helpers

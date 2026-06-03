@@ -300,6 +300,19 @@ def audit(
         config = WatchConfig()
 
     # ------------------------------------------------------------------
+    # 0b. Guard: steps must be >= sample_every or no events will fire
+    # ------------------------------------------------------------------
+    if steps < config.sample_every:
+        warnings.warn(
+            f"[moewatch] steps={steps} is less than sample_every={config.sample_every}. "
+            "No routing events will be captured and the AuditReport will show "
+            "UNKNOWN health. Either increase steps or reduce sample_every "
+            "(e.g. WatchConfig(sample_every=1)).",
+            UserWarning,
+            stacklevel=2,
+        )
+
+    # ------------------------------------------------------------------
     # 1. Resolve device and prepare data iterator
     # ------------------------------------------------------------------
     device = _resolve_device(model)
