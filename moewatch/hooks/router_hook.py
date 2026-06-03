@@ -237,30 +237,35 @@ class RouterHook:
         self,
         output: Any,
     ) -> Optional[RoutingEvent]:
-        """Handle tuple/list outputs.
+        tensors: list = [
+            (i, output[i].detach().cpu())
+            for i in range(min(len(output), 4))
+            if isinstance(output[i], torch.Tensor)
+        ]
 
-        Mixtral ``MixtralSparseMoeBlock`` returns:
-          (hidden_states, router_logits)
-        where router_logits is shape (batch × seq_len, n_experts).
+        logits_candidate = None
+        indices_candidate = None
 
-        OLMoE returns:
-          (hidden_states, router_probs, selected_experts)
-        where selected_experts is shape (batch × seq_len, top_k).
-        """
-        # Try position [1] as logits tensor
-        if isinstance(output[1], torch.Tensor):
-            candidate = output[1].detach().cpu()
+        for i, candidate in tensors:
+            if candidate.ndim != 2:
+                continue
+            if candidate.dtype in (torch.float16, torch.float32,
+                                    torch.bfloat16, torch.float64):
+                if logits_candidate is None and candidate.shape[1] >= 4:
+                    logits_candidate = candidate
+            elif candidate.dtype in (torch.int32, torch.int64):
+                if indices_candidate is None:
+                    indices_candidate = candidate
 
-            if candidate.ndim == 2:
-                # Shape: (total_tokens, n_experts) — router logits
-                return self._from_logits_tensor(candidate)
+        if logits_candidate is not None:
+            event = self._from_logits_tensor(logits_candidate)
+            # If indices are also present, use them to set the correct top_k
+            if indices_candidate is not None and indices_candidate.ndim == 2:
+                event.top_k = indices_candidate.shape[1]
+            return event
 
-        # Try position [2] as expert indices (OLMoE style)
-        if len(output) >= 3 and isinstance(output[2], torch.Tensor):
-            indices = output[2].detach().cpu()
-            if indices.ndim == 2:
-                # Shape: (total_tokens, top_k)
-                return self._from_expert_indices(indices, logits=None)
+        if indices_candidate is not None:
+            return self._from_expert_indices(indices_candidate, logits=None)
 
         return None
 
