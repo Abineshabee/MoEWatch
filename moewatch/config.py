@@ -198,7 +198,7 @@ class WatchConfig:
     sample_every: int = 10
     log_every: int = 100
     ring_buffer_capacity: int = 10_000
-    min_events_for_collapse: int = 2
+    min_events_for_collapse: int = 1
 
     # -- Output & display ---------------------------------------------------
     output: OutputMode = OutputMode.CONSOLE
