@@ -72,15 +72,16 @@ Every PR must pass the full CI pipeline locally:
 audit() / MoEWatch.step()
         │
         ▼
-   HookManager  ──attaches──▶  RouterHook (per router module)
+   HookManager  ── attaches ──▶  RouterHook (per router module)
                                       │
-                                      ▼ RoutingEvent
-                               StatCollector (ring buffer)
+                                      ▼ 
+                                RoutingEvent
+                                StatCollector (ring buffer)
                                       │
                     ┌─────────────────┴──────────────────┐
-                    ▼                                     ▼
-             EntropyAnalyzer                    CollapseDetector
-                    │                                     │
+                    ▼                                    ▼
+             EntropyAnalyzer                      CollapseDetector
+                    │                                    │
                     └─────────────────┬──────────────────┘
                                       ▼
                                  AuditReport
