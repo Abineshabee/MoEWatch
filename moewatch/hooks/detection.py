@@ -94,8 +94,8 @@ _ARCHITECTURE_REGISTRY: Dict[str, FrozenSet[str]] = {
     "Qwen": frozenset(
         {
             "QwenMoE",
-            "Qwen2MoeTopKRouter",   # replaces Qwen2MoeSparseMoeBlock
-            "Qwen3MoeTopKRouter",   # replaces Qwen3MoeSparseMoeBlock
+            "Qwen2MoeTopKRouter",  # replaces Qwen2MoeSparseMoeBlock
+            "Qwen3MoeTopKRouter",  # replaces Qwen3MoeSparseMoeBlock
         }
     ),
     # Switch Transformer — Google (HuggingFace port)
