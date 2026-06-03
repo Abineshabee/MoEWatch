@@ -5,8 +5,8 @@
 
 > **The pytest for Mixture-of-Experts models.** Catch expert collapse, routing entropy collapse, and load imbalance — before they silently wreck your training run.
 
-[![PyPI version](https://img.shields.io/pypi/v/moewatch.svg)](https://pypi.org/project/moewatch/)
-[![Python](https://img.shields.io/pypi/pyversions/moewatch.svg)](https://pypi.org/project/moewatch/)
+[![PyPI version](https://img.shields.io/pypi/v/moewatch.svg?cache_seconds=300)](https://pypi.org/project/moewatch/)
+[![Python](https://img.shields.io/pypi/pyversions/moewatch.svg?cache_seconds=300)](https://pypi.org/project/moewatch/)
 [![CI](https://github.com/Abineshabee/MoEWatch/actions/workflows/ci.yml/badge.svg)](https://github.com/Abineshabee/MoEWatch/actions)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![GitHub](https://img.shields.io/badge/github-Abineshabee%2Fmoewatch-black?logo=github)](https://github.com/Abineshabee/moewatch)
