@@ -9,7 +9,7 @@
 [![Python](https://img.shields.io/pypi/pyversions/moewatch.svg?cache_seconds=300)](https://pypi.org/project/moewatch/)
 [![CI](https://github.com/Abineshabee/MoEWatch/actions/workflows/ci.yml/badge.svg)](https://github.com/Abineshabee/MoEWatch/actions)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![DOI](https://zenodo.org/badge/1257382721.svg?cache_seconds=300)](https://doi.org/10.5281/zenodo.20527783)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20527783-blue?logo=zenodo)](https://doi.org/10.5281/zenodo.20527783)
 [![GitHub](https://img.shields.io/badge/github-Abineshabee%2Fmoewatch-black?logo=github)](https://github.com/Abineshabee/moewatch)
 
 ---
