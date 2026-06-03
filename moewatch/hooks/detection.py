@@ -87,11 +87,15 @@ _ARCHITECTURE_REGISTRY: Dict[str, FrozenSet[str]] = {
         }
     ),
     # Qwen-MoE — Alibaba
+    # NOTE: Qwen2/3 MoeSparseMoeBlock returns only hidden-states (no routing
+    # info). The correct hook target is the inner TopKRouter gate module, which
+    # returns (logits, routing_weights, expert_indices) — a 3-tuple that
+    # RouterHook._from_tuple_output handles via the logits + indices path.
     "Qwen": frozenset(
         {
             "QwenMoE",
-            "Qwen2MoeSparseMoeBlock",
-            "Qwen3MoeSparseMoeBlock",
+            "Qwen2MoeTopKRouter",   # replaces Qwen2MoeSparseMoeBlock
+            "Qwen3MoeTopKRouter",   # replaces Qwen3MoeSparseMoeBlock
         }
     ),
     # Switch Transformer — Google (HuggingFace port)
