@@ -69,7 +69,7 @@ packages = ["moewatch"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=moewatch --cov-report=term-missing --cov-fail-under=80"
+addopts = "--cov=moewatch --cov-report=term-missing --cov-fail-under=80 --import-mode=importlib"
 filterwarnings = [
     "ignore::DeprecationWarning:torchao",
 ]
@@ -82,6 +82,8 @@ exclude_lines = [
 ]
 
 [tool.coverage.run]
+source = ["moewatch"]
+relative_files = true
 omit = ["tests/*"]
 
 [tool.black]
@@ -89,7 +91,7 @@ line-length = 88
 target-version = ["py38", "py39", "py310", "py311", "py312"]
 
 [tool.ruff]
-line-length = 88
+line-height = 88
 target-version = "py38"
 
 [tool.mypy]
