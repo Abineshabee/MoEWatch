@@ -249,8 +249,12 @@ class RouterHook:
         for i, candidate in tensors:
             if candidate.ndim != 2:
                 continue
-            if candidate.dtype in (torch.float16, torch.float32,
-                                    torch.bfloat16, torch.float64):
+            if candidate.dtype in (
+                torch.float16,
+                torch.float32,
+                torch.bfloat16,
+                torch.float64,
+            ):
                 if logits_candidate is None and candidate.shape[1] >= 4:
                     logits_candidate = candidate
             elif candidate.dtype in (torch.int32, torch.int64):

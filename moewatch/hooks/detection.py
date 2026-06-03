@@ -67,7 +67,7 @@ _ARCHITECTURE_REGISTRY: Dict[str, FrozenSet[str]] = {
         {
             "MixtralSparseMoeBlock",
             "MixtralBlocSparseTop2MLP",  # some forks rename the block
-            "MixtralTopKRouter",          # newer transformers: standalone router gate
+            "MixtralTopKRouter",  # newer transformers: standalone router gate
         }
     ),
     # OLMoE — allenai
