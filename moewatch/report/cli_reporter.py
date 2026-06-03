@@ -51,7 +51,7 @@ import sys
 import textwrap
 from typing import Optional
 
-from ..config import AlertLevel, WatchConfig
+from ..config import AlertLevel, OutputMode, WatchConfig
 from .audit_report import (
     AuditReport,
     OverallHealth,
@@ -195,6 +195,9 @@ class CLIReporter:
         report : AuditReport
             The report to render.  Must be a fully-constructed AuditReport.
         """
+        if self.config.output == OutputMode.SILENT:
+            return
+
         out = sys.stdout
 
         try:
