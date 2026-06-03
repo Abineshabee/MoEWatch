@@ -179,15 +179,17 @@ _EXCLUSION_SUBSTRINGS: FrozenSet[str] = frozenset(
 # (rules out tiny bias-only or scalar modules whose name contains "gate")
 _MIN_PARAM_COUNT: int = 1
 
-def _remove_ancestor_duplicates(names: list) -> list:
+
+def _remove_ancestor_duplicates(names: List[str]) -> List[str]:
     names = sorted(names, key=len, reverse=True)  # deepest first
-    result = []
+    result: List[str] = []
 
     for name in names:
         if not any(prev.startswith(name + ".") for prev in result):
             result.append(name)
 
     return list(reversed(result))
+
 
 # ------------------------------------------------------------------------------
 # Public API
@@ -280,12 +282,14 @@ def detect_router_modules(model: nn.Module) -> List[str]:
     # Registry hits always win; heuristic results are only used when registry
     # finds nothing at all. This prevents false-positive heuristic hits from
     # polluting a clean registry detection on known architectures.
+    result: List[str] = []
+
     if found_registry:
         result = _remove_ancestor_duplicates(found_registry)
         log.info(
             "[moewatch] Architecture registry detected %d router module(s) "
             "(heuristic found %d additional — ignored because registry succeeded).",
-            len(result),           # ← use result count, not found_registry
+            len(result),
             len(found_heuristic),
         )
         _log_detected(result)
@@ -297,7 +301,7 @@ def detect_router_modules(model: nn.Module) -> List[str]:
             "[moewatch] Heuristic detection found %d router module(s). "
             "If these look wrong, use WatchConfig(router_modules=[...]) "
             "to specify them explicitly.",
-            len(result),           # ← use result count, not found_heuristic
+            len(result),
         )
         _log_detected(result)
         return result
